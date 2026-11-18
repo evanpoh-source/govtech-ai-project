@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ICA Passport Renewal — Child Application (Prototype)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; color: #1a1a1a; line-height: 1.5; }
+  .banner { background: #d63a3a; color: #fff; text-align: center; padding: 8px; font-size: 13px; }
+  .container { max-width: 640px; margin: 24px auto; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 32px; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #555; margin-bottom: 24px; }
+  .field { margin-bottom: 20px; }
+  label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
+  label .hint { font-weight: 400; color: #666; font-size: 13px; }
+  input, select { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
+  input:focus, select:focus { outline: none; border-color: #3366cc; box-shadow: 0 0 0 2px rgba(51,102,204,0.2); }
+  input.has-warning { border-color: #d63a3a; }
+  .warning { display: none; margin-top: 4px; padding: 6px 10px; background: #fef2f2; border-left: 3px solid #d63a3a; border-radius: 2px; font-size: 13px; color: #b91c1c; }
+  .warning.visible { display: block; }
+  .valid-msg { display: none; margin-top: 4px; font-size: 13px; color: #16803c; }
+  .valid-msg.visible { display: block; }
+  .actions { margin-top: 28px; display: flex; gap: 12px; }
+  .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; }
+  .btn-primary { background: #3366cc; color: #fff; }
+  .btn-primary:hover { background: #2851a3; }
+  .btn-secondary { background: #e5e5e5; color: #333; }
+  .officer-report { display: none; margin-top: 28px; padding: 16px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 6px; }
+  .officer-report h2 { font-size: 16px; margin-bottom: 8px; }
+  .officer-report ul { padding-left: 20px; font-size: 14px; }
+  .officer-report li { margin-bottom: 4px; }
+  .officer-report .clean { color: #16803c; font-weight: 600; }
+  .officer-report .flagged { color: #b91c1c; }
+</style>
+</head>
+<body>
+
+<div class="banner">PROTOTYPE — All data is synthetic and made up. Not a real ICA system.</div>
+
+<div class="container">
+  <h1>Passport Renewal — Child Application</h1>
+  <p class="subtitle">Parent or guardian submitting on behalf of a child under 16</p>
+
+  <form id="appForm" novalidate>
+
+    <div class="field">
+      <label>Child's full name <span class="hint">(as on birth certificate)</span></label>
+      <input type="text" id="childName" placeholder="e.g. Tan Wei Lin">
+      <div class="warning" id="warn-childName"></div>
+      <div class="valid-msg" id="ok-childName">Looks good</div>
+    </div>
+
+    <div class="field">
+      <label>Child's date of birth</label>
+      <input type="date" id="childDob" max="2026-11-18" min="2010-01-01">
+      <div class="warning" id="warn-childDob"></div>
+      <div class="valid-msg" id="ok-childDob">Looks good</div>
+    </div>
+
+    <div class="field">
+      <label>Photo file <span class="hint">(JPG, 400 x 514 px)</span></label>
+      <input type="file" id="photoFile" accept=".jpg,.jpeg">
+      <div class="warning" id="warn-photoFile"></div>
+      <div class="valid-msg" id="ok-photoFile">Looks good</div>
+    </div>
+
+    <div class="field">
+      <label>Supporting document type</label>
+      <select id="docType">
+        <option value="">— Select —</option>
+        <option value="birth_certificate">Birth certificate</option>
+        <option value="deed_poll">Deed poll (if name differs from birth certificate)</option>
+      </select>
+      <div class="warning" id="warn-docType"></div>
+      <div class="valid-msg" id="ok-docType">Looks good</div>
+    </div>
+
+    <div class="field">
+      <label>Parent's NRIC <span class="hint">(e.g. S8234567A)</span></label>
+      <input type="text" id="parentNric" placeholder="S1234567A" maxlength="9">
+      <div class="warning" id="warn-parentNric"></div>
+      <div class="valid-msg" id="ok-parentNric">Looks good</div>
+    </div>
+
+    <div class="field">
+      <label>Relationship to child</label>
+      <select id="relationship">
+        <option value="">— Select —</option>
+        <option value="mother">Mother</option>
+        <option value="father">Father</option>
+        <option value="legal_guardian">Legal guardian</option>
+      </select>
+      <div class="warning" id="warn-relationship"></div>
+      <div class="valid-msg" id="ok-relationship">Looks good</div>
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn btn-primary" onclick="submitForm()">Submit application</button>
+      <button type="reset" class="btn btn-secondary">Clear form</button>
+    </div>
+  </form>
+
+  <div class="officer-report" id="officerReport">
+    <h2>Officer summary report</h2>
+    <p style="font-size:13px;color:#666;margin-bottom:8px;">Auto-generated for the reviewing officer. All data is synthetic.</p>
+    <ul id="reportList"></ul>
+  </div>
+</div>
+
+<script src="checker.js"></script>
+</body>
+</html>
