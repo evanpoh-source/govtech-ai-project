@@ -1,24 +1,49 @@
-# Prototype: ICA passport renewal pre-submission checker
+# Prototype: ICA passport application pre-submission checker
 
 All data is synthetic and made up. Not a real ICA system.
 
-## What this tests
+## What it does
 
-Whether inline warnings trained on a database of correct submissions reduce errors before an application reaches an officer. Focused on parents renewing a passport for a child under 16 (the most confused group).
+A single-page form that checks passport application inputs against patterns learned from a database of correct submissions. Covers all four application types: new and renewal for adults (16+) and children (below 16). When an input deviates from what correct submissions look like, an inline warning appears next to the field. Warnings explain what's expected but never block the applicant from continuing.
 
-## How it works
+On submit, an officer summary report is generated listing every field as OK or flagged, with a pass/fail verdict.
 
-1. The applicant fills in the form fields.
-2. On each field, the checker compares the input against patterns learned from `data/correct-submissions.csv` (200 synthetic correct submissions).
-3. If the input deviates from what correct submissions look like, a warning appears inline. The warning does not block the user.
-4. On submit, an officer summary report lists every field as OK or flagged.
+## What it tests
+
+1. Whether inline warnings reduce errors before submission (targeting the 17% return rate).
+2. Whether the officer summary report saves review time.
+3. Whether the checker avoids false positives (the riskiest assumption: marking bad inputs as OK).
 
 ## How to run
 
 Open `index.html` in a browser. No server or install needed.
 
+To run the false positive test, open `test-false-positives.html` and click "Run all 12 tests."
+
 ## Files
 
-- `index.html` — the form page
-- `checker.js` — validates inputs against patterns from the correct submissions database
-- `data/correct-submissions.csv` — 20 synthetic correct child renewal submissions
+| File | Purpose |
+|---|---|
+| `index.html` | Application form with inline checker and officer report |
+| `checker.js` | Validation logic: format, cross-field, document combinations, ICA photo rules |
+| `test-false-positives.html` | Runs 12 known-bad submissions through the checker, flags any false positives |
+| `data/correct-submissions.csv` | 20 synthetic correct child renewal submissions |
+| `data/bad-submissions.csv` | 12 synthetic bad submissions for testing |
+
+## What the checker validates
+
+- Name in BLOCK LETTERS (uppercase, matching NRIC)
+- NRIC format (9 characters, correct prefix per application type)
+- Age vs application type (child below 16, adult 16+)
+- Email and phone format (SG mobile, 8 digits)
+- Parent/guardian NRIC differs from child's (child apps)
+- Relationship (only mother, father, or legal guardian for child apps)
+- Legal guardian proof required
+- Photo format (JPG, JPEG, PNG, HEIC, HEIF), size (max 8 MB), dimensions (400x514 px)
+- Photo recency and no-filters confirmation
+- Document type matches application type (birth cert required for child apps)
+- Declaration confirmed
+
+## Known gap
+
+Foreign-born children with Singapore citizenship may have NRIC prefixes other than T. The checker currently warns on all non-T prefixes for child applications.
