@@ -8,14 +8,21 @@
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #eef1f5; color: #1a1a1a; line-height: 1.6; }
 
-  /* Banners */
   .prototype-banner { background: #b91c1c; color: #fff; text-align: center; padding: 6px; font-size: 12px; letter-spacing: 0.5px; text-transform: uppercase; }
   .ica-header { background: #1e3a5f; color: #fff; padding: 16px 24px; }
   .ica-header h1 { font-size: 18px; font-weight: 600; letter-spacing: 0.3px; }
   .ica-header p { font-size: 13px; color: #b0c4de; margin-top: 2px; }
 
-  /* Container */
   .container { max-width: 660px; margin: 24px auto; padding: 0 16px; }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 0; margin-bottom: 20px; }
+  .tab { flex: 1; padding: 10px 16px; text-align: center; font-size: 14px; font-weight: 600; cursor: pointer; border: 1.5px solid #d1d5db; background: #fff; color: #555; transition: background 0.2s, color 0.2s; }
+  .tab:first-child { border-radius: 8px 0 0 8px; }
+  .tab:last-child { border-radius: 0 8px 8px 0; }
+  .tab.active { background: #1e3a5f; color: #fff; border-color: #1e3a5f; }
+  .tab-content { display: none; }
+  .tab-content.active { display: block; }
 
   /* Progress bar */
   .progress-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 16px 20px; margin-bottom: 20px; }
@@ -27,7 +34,7 @@
   .progress-seg.valid { background: #22c55e; }
   .progress-seg.flagged { background: #ef4444; }
 
-  /* Form card */
+  /* Cards */
   .form-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 28px 24px; margin-bottom: 20px; }
 
   .section-title { font-size: 14px; font-weight: 700; color: #1e3a5f; margin: 28px 0 14px; padding-bottom: 8px; border-bottom: 2px solid #e5e7eb; text-transform: uppercase; letter-spacing: 0.5px; }
@@ -39,16 +46,33 @@
   input, select { width: 100%; padding: 10px 12px; border: 1.5px solid #d1d5db; border-radius: 6px; font-size: 14px; background: #fafafa; transition: border-color 0.2s, box-shadow 0.2s, background 0.2s; }
   input:focus, select:focus { outline: none; border-color: #3b82f6; box-shadow: 0 0 0 3px rgba(59,130,246,0.15); background: #fff; }
   input.has-warning, select.has-warning { border-color: #ef4444; background: #fef2f2; }
+  input.singpass-filled { border-color: #7c3aed; background: #f5f3ff; }
+  input:disabled { background: #f3f4f6; color: #6b7280; }
 
   .warning { display: none; margin-top: 5px; padding: 8px 10px; background: #fef2f2; border-left: 3px solid #ef4444; border-radius: 4px; font-size: 12px; color: #991b1b; opacity: 0; transition: opacity 0.25s ease; }
   .warning.visible { display: block; opacity: 1; }
+  .warning.low-confidence { background: #fffbeb; border-left-color: #f59e0b; color: #92400e; }
+  .confidence-tag { display: inline-block; padding: 1px 6px; border-radius: 3px; font-size: 10px; font-weight: 700; text-transform: uppercase; margin-right: 4px; vertical-align: middle; }
+  .confidence-tag.high { background: #fee2e2; color: #991b1b; }
+  .confidence-tag.medium { background: #ffedd5; color: #9a3412; }
+  .confidence-tag.low { background: #fef3c7; color: #92400e; }
   .valid-msg { display: none; margin-top: 5px; font-size: 12px; color: #16a34a; opacity: 0; transition: opacity 0.25s ease; }
   .valid-msg.visible { display: block; opacity: 1; }
+  .mismatch-warning { display: none; margin-top: 5px; padding: 8px 10px; background: #fefce8; border-left: 3px solid #ca8a04; border-radius: 4px; font-size: 12px; color: #854d0e; }
+  .mismatch-warning.visible { display: block; }
 
   .info-box { background: #eff6ff; border-left: 3px solid #3b82f6; padding: 12px 14px; font-size: 12px; color: #1e40af; margin-bottom: 20px; border-radius: 4px; line-height: 1.6; }
   .photo-guidelines { background: #f0fdf4; border-left: 3px solid #22c55e; padding: 12px 14px; font-size: 12px; color: #166534; margin-bottom: 20px; border-radius: 4px; }
   .photo-guidelines ul { margin: 6px 0 0 16px; }
   .photo-guidelines li { margin-bottom: 2px; }
+
+  /* Singpass box */
+  .singpass-box { background: #f5f3ff; border: 1.5px solid #7c3aed; border-radius: 8px; padding: 16px; margin-bottom: 20px; }
+  .singpass-box h3 { font-size: 14px; color: #5b21b6; margin-bottom: 6px; }
+  .singpass-box p { font-size: 12px; color: #6d28d9; margin-bottom: 12px; }
+  .btn-singpass { background: #7c3aed; color: #fff; padding: 9px 20px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-singpass:hover { background: #6d28d9; }
+  .singpass-status { font-size: 12px; color: #16a34a; font-weight: 600; margin-top: 8px; display: none; }
 
   .checkbox-field { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 16px; }
   .checkbox-field input[type="checkbox"] { width: auto; margin-top: 2px; accent-color: #3b82f6; }
@@ -65,7 +89,7 @@
   .btn-secondary { background: #e5e7eb; color: #555; }
   .btn-secondary:hover { background: #d1d5db; }
 
-  /* Officer report */
+  /* Officer report (applicant view) */
   .officer-report { display: none; margin-bottom: 20px; }
   .report-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); overflow: hidden; }
   .report-header { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
@@ -74,28 +98,59 @@
   .report-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
   .report-badge.pass { background: #dcfce7; color: #166534; }
   .report-badge.fail { background: #fee2e2; color: #991b1b; }
-
   .report-table { width: 100%; border-collapse: collapse; }
   .report-table th { background: #f8f9fa; padding: 8px 20px; text-align: left; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; color: #888; border-bottom: 1px solid #e5e7eb; }
   .report-table td { padding: 10px 20px; border-bottom: 1px solid #f0f0f0; font-size: 13px; vertical-align: top; }
   .report-table tr:last-child td { border-bottom: none; }
   .report-table .status-ok { color: #16a34a; font-weight: 600; }
   .report-table .status-flag { color: #dc2626; }
+  .report-table .status-low-conf { color: #b45309; }
+  .officer-low-confidence { margin-top: 12px; padding: 12px; background: #fffbeb; border: 2px solid #f59e0b; border-radius: 6px; }
+  .officer-low-confidence h4 { font-size: 12px; color: #92400e; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .officer-low-confidence li { font-size: 12px; color: #92400e; margin-bottom: 2px; }
+  .report-table .status-mismatch { color: #ca8a04; }
   .report-table .status-icon { display: inline-block; width: 18px; text-align: center; margin-right: 4px; }
-
   .report-footer { padding: 12px 20px; background: #f8f9fa; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; font-size: 12px; color: #666; }
   .report-footer .stat { font-weight: 600; }
   .report-footer .stat.ok { color: #16a34a; }
   .report-footer .stat.flagged { color: #dc2626; }
   .report-disclaimer { padding: 10px 20px; font-size: 11px; color: #aaa; font-style: italic; border-top: 1px solid #f0f0f0; }
 
-  /* Responsive */
+  /* Officer vet view */
+  .officer-card { background: #fff; border-radius: 10px; box-shadow: 0 1px 4px rgba(0,0,0,0.08); padding: 24px; margin-bottom: 20px; }
+  .officer-card h2 { font-size: 16px; color: #1e3a5f; margin-bottom: 4px; }
+  .officer-card .sub { font-size: 12px; color: #888; margin-bottom: 16px; }
+  .officer-empty { text-align: center; padding: 40px 20px; color: #999; font-size: 14px; }
+  .officer-submission { border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; margin-bottom: 16px; }
+  .officer-submission h3 { font-size: 14px; margin-bottom: 8px; }
+  .officer-field { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid #f5f5f5; font-size: 13px; }
+  .officer-field:last-child { border-bottom: none; }
+  .officer-field .label { color: #666; }
+  .officer-field .value { font-weight: 600; }
+  .officer-field .value.flagged { color: #dc2626; }
+  .officer-field .value.mismatch { color: #ca8a04; }
+  .officer-field .value.ok { color: #1a1a1a; }
+  .officer-flags { margin-top: 12px; padding: 12px; background: #fef2f2; border-radius: 6px; }
+  .officer-flags h4 { font-size: 12px; color: #991b1b; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .officer-flags li { font-size: 12px; color: #991b1b; margin-bottom: 2px; }
+  .officer-mismatch-flags { margin-top: 8px; padding: 12px; background: #fefce8; border-radius: 6px; }
+  .officer-mismatch-flags h4 { font-size: 12px; color: #854d0e; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .officer-mismatch-flags li { font-size: 12px; color: #854d0e; margin-bottom: 2px; }
+  .officer-actions { margin-top: 12px; display: flex; gap: 8px; }
+  .btn-approve { background: #16a34a; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .btn-return { background: #dc2626; color: #fff; padding: 8px 16px; border: none; border-radius: 6px; font-size: 13px; font-weight: 600; cursor: pointer; }
+  .officer-verdict { margin-top: 8px; font-size: 13px; font-weight: 600; }
+
   @media (max-width: 480px) {
-    .form-card { padding: 20px 16px; }
+    .form-card, .officer-card { padding: 20px 16px; }
     .ica-header { padding: 12px 16px; }
     .actions { flex-direction: column; }
     .btn { width: 100%; text-align: center; }
     .report-header { flex-direction: column; gap: 8px; align-items: flex-start; }
+    .tabs { flex-direction: column; }
+    .tab { border-radius: 0; }
+    .tab:first-child { border-radius: 8px 8px 0 0; }
+    .tab:last-child { border-radius: 0 0 8px 8px; }
   }
 </style>
 </head>
@@ -110,209 +165,239 @@
 
 <div class="container">
 
-  <!-- Progress bar -->
-  <div class="progress-card">
-    <div class="progress-label">
-      <span>Application completeness</span>
-      <strong id="progressText">0 of 0 fields</strong>
-    </div>
-    <div class="progress-track" id="progressTrack"></div>
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('applicant')">Applicant View</div>
+    <div class="tab" onclick="switchTab('officer')">Officer Vetting</div>
   </div>
 
-  <div class="form-card">
-    <div class="info-box">
-      Based on ICA requirements. Passports are valid for 10 years (age 16 and above) or 5 years (below 16). You need a digital colour photo meeting ICAO standards, your NRIC, and supporting documents for your situation.
+  <!-- ============ APPLICANT TAB ============ -->
+  <div class="tab-content active" id="tab-applicant">
+
+    <!-- Progress bar -->
+    <div class="progress-card">
+      <div class="progress-label">
+        <span>Application completeness</span>
+        <strong id="progressText">0 of 0 fields</strong>
+      </div>
+      <div class="progress-track" id="progressTrack"></div>
     </div>
 
-    <form id="appForm" novalidate>
+    <div class="form-card">
 
-      <div class="section-title">Application type</div>
-
-      <div class="field">
-        <label>What are you applying for?</label>
-        <select id="appType">
-          <option value="">— Select —</option>
-          <option value="new_adult">New passport (age 16 and above)</option>
-          <option value="renew_adult">Renewal (age 16 and above)</option>
-          <option value="new_child">New passport (below 16)</option>
-          <option value="renew_child">Renewal (below 16)</option>
-        </select>
-        <div class="warning" id="warn-appType"></div>
+      <!-- Singpass -->
+      <div class="singpass-box">
+        <h3>Retrieve with Singpass (MyInfo)</h3>
+        <p>Pre-fill your name, NRIC, and date of birth from Singpass. This uses synthetic mock data.</p>
+        <button type="button" class="btn-singpass" onclick="singpassRetrieve()">Retrieve MyInfo</button>
+        <div class="singpass-status" id="singpassStatus">Retrieved from Singpass (mock). Fields are locked. If any detail is wrong, visit a ServiceSG centre.</div>
       </div>
 
-      <div class="section-title">Applicant's particulars</div>
-
-      <div class="field">
-        <label>Full name <span class="hint">(as on NRIC, in BLOCK LETTERS)</span></label>
-        <input type="text" id="fullName" placeholder="e.g. TAN WEI LIN">
-        <div class="warning" id="warn-fullName"></div>
-        <div class="valid-msg" id="ok-fullName">Matches expected format</div>
+      <div class="info-box">
+        Based on ICA requirements. Passports are valid for 10 years (age 16 and above) or 5 years (below 16). You need a digital colour photo meeting ICAO standards, your NRIC, and supporting documents for your situation.
       </div>
 
-      <div class="field">
-        <label>NRIC number <span class="hint">(e.g. S8234567A)</span></label>
-        <input type="text" id="nric" placeholder="S8234567A" maxlength="9">
-        <div class="warning" id="warn-nric"></div>
-        <div class="valid-msg" id="ok-nric">Format is valid</div>
-      </div>
+      <form id="appForm" novalidate>
 
-      <div class="field">
-        <label>Date of birth</label>
-        <input type="date" id="dob">
-        <div class="warning" id="warn-dob"></div>
-        <div class="valid-msg" id="ok-dob">Age matches application type</div>
-      </div>
-
-      <div class="field">
-        <label>Email address <span class="hint">(for application updates)</span></label>
-        <input type="email" id="email" placeholder="e.g. name@example.com">
-        <div class="warning" id="warn-email"></div>
-        <div class="valid-msg" id="ok-email">Format is valid</div>
-      </div>
-
-      <div class="field">
-        <label>Contact number <span class="hint">(Singapore mobile, 8 digits)</span></label>
-        <input type="tel" id="phone" placeholder="e.g. 91234567" maxlength="8">
-        <div class="warning" id="warn-phone"></div>
-        <div class="valid-msg" id="ok-phone">Format is valid</div>
-      </div>
-
-      <!-- Parent/guardian section for child applications -->
-      <div class="conditional" id="childSection">
-        <div class="section-title">Parent / guardian (required for below 16)</div>
+        <div class="section-title">Application type</div>
 
         <div class="field">
-          <label>Parent / guardian NRIC <span class="hint">(e.g. S8234567A)</span></label>
-          <input type="text" id="parentNric" placeholder="S8234567A" maxlength="9">
-          <div class="warning" id="warn-parentNric"></div>
-          <div class="valid-msg" id="ok-parentNric">Format is valid</div>
-        </div>
-
-        <div class="field">
-          <label>Relationship to applicant</label>
-          <select id="relationship">
+          <label>What are you applying for?</label>
+          <select id="appType">
             <option value="">— Select —</option>
-            <option value="mother">Mother</option>
-            <option value="father">Father</option>
-            <option value="legal_guardian">Legal guardian</option>
-            <option value="sibling">Sibling</option>
-            <option value="grandparent">Grandparent</option>
-            <option value="other">Other</option>
+            <option value="new_adult">New passport (age 16 and above)</option>
+            <option value="renew_adult">Renewal (age 16 and above)</option>
+            <option value="new_child">New passport (below 16)</option>
+            <option value="renew_child">Renewal (below 16)</option>
           </select>
-          <div class="warning" id="warn-relationship"></div>
-          <div class="valid-msg" id="ok-relationship">Accepted</div>
+          <div class="warning" id="warn-appType"></div>
         </div>
 
-        <div class="conditional" id="guardianProofField">
+        <div class="section-title">Applicant's particulars</div>
+
+        <div class="field">
+          <label>Full name <span class="hint">(as on NRIC, in BLOCK LETTERS)</span></label>
+          <input type="text" id="fullName" placeholder="e.g. TAN WEI LIN">
+          <div class="warning" id="warn-fullName"></div>
+          <div class="valid-msg" id="ok-fullName">Matches expected format</div>
+          <div class="mismatch-warning" id="mismatch-fullName"></div>
+        </div>
+
+        <div class="field">
+          <label>NRIC number <span class="hint">(e.g. S8234567A)</span></label>
+          <input type="text" id="nric" placeholder="S8234567A" maxlength="9">
+          <div class="warning" id="warn-nric"></div>
+          <div class="valid-msg" id="ok-nric">Format is valid</div>
+          <div class="mismatch-warning" id="mismatch-nric"></div>
+        </div>
+
+        <div class="field">
+          <label>Date of birth</label>
+          <input type="date" id="dob">
+          <div class="warning" id="warn-dob"></div>
+          <div class="valid-msg" id="ok-dob">Age matches application type</div>
+          <div class="mismatch-warning" id="mismatch-dob"></div>
+        </div>
+
+        <div class="field">
+          <label>Email address <span class="hint">(for application updates)</span></label>
+          <input type="email" id="email" placeholder="e.g. name@example.com">
+          <div class="warning" id="warn-email"></div>
+          <div class="valid-msg" id="ok-email">Format is valid</div>
+        </div>
+
+        <div class="field">
+          <label>Contact number <span class="hint">(Singapore mobile, 8 digits)</span></label>
+          <input type="tel" id="phone" placeholder="e.g. 91234567" maxlength="8">
+          <div class="warning" id="warn-phone"></div>
+          <div class="valid-msg" id="ok-phone">Format is valid</div>
+        </div>
+
+        <div class="conditional" id="childSection">
+          <div class="section-title">Parent / guardian (required for below 16)</div>
+
           <div class="field">
-            <label>Legal guardianship proof</label>
-            <select id="guardianProof">
+            <label>Parent / guardian NRIC <span class="hint">(e.g. S8234567A)</span></label>
+            <input type="text" id="parentNric" placeholder="S8234567A" maxlength="9">
+            <div class="warning" id="warn-parentNric"></div>
+            <div class="valid-msg" id="ok-parentNric">Format is valid</div>
+          </div>
+
+          <div class="field">
+            <label>Relationship to applicant</label>
+            <select id="relationship">
               <option value="">— Select —</option>
-              <option value="court_order">Court order</option>
-              <option value="letter">Letter of guardianship</option>
-              <option value="none">I don't have proof</option>
+              <option value="mother">Mother</option>
+              <option value="father">Father</option>
+              <option value="legal_guardian">Legal guardian</option>
+              <option value="sibling">Sibling</option>
+              <option value="grandparent">Grandparent</option>
+              <option value="other">Other</option>
             </select>
-            <div class="warning" id="warn-guardianProof"></div>
+            <div class="warning" id="warn-relationship"></div>
+            <div class="valid-msg" id="ok-relationship">Accepted</div>
+          </div>
+
+          <div class="conditional" id="guardianProofField">
+            <div class="field">
+              <label>Legal guardianship proof</label>
+              <select id="guardianProof">
+                <option value="">— Select —</option>
+                <option value="court_order">Court order</option>
+                <option value="letter">Letter of guardianship</option>
+                <option value="none">I don't have proof</option>
+              </select>
+              <div class="warning" id="warn-guardianProof"></div>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="section-title">Passport photo</div>
+        <div class="section-title">Passport photo</div>
 
-      <div class="photo-guidelines">
-        <strong>ICA photo requirements (ica.gov.sg/photo-guidelines):</strong>
-        <ul>
-          <li>Digital colour photo, taken within the last 3 months</li>
-          <li>Accepted formats: JPG, JPEG, PNG, HEIC, HEIF</li>
-          <li>Online upload size: 400 x 514 pixels</li>
-          <li>Maximum file size: 8 MB</li>
-          <li>Must meet ISO / ICAO specifications</li>
-          <li>No filters, no enhancements, no altered facial features</li>
-          <li>Avoid selfies where possible (have someone photograph you)</li>
-        </ul>
-      </div>
-
-      <div class="field">
-        <label>Photo file <span class="hint">(JPG, JPEG, PNG, HEIC, or HEIF, max 8 MB, 400 x 514 px)</span></label>
-        <input type="file" id="photoFile" accept=".jpg,.jpeg,.png,.heic,.heif">
-        <div class="warning" id="warn-photoFile"></div>
-        <div class="valid-msg" id="ok-photoFile">File accepted</div>
-      </div>
-
-      <div class="checkbox-field">
-        <input type="checkbox" id="photoRecent">
-        <label for="photoRecent">I confirm this photo was taken within the last 3 months</label>
-      </div>
-      <div class="warning" id="warn-photoRecent" style="margin-top:-8px;margin-bottom:12px;"></div>
-
-      <div class="checkbox-field">
-        <input type="checkbox" id="photoUnedited">
-        <label for="photoUnedited">I confirm this photo has no filters, enhancements, or altered facial features</label>
-      </div>
-      <div class="warning" id="warn-photoUnedited" style="margin-top:-8px;margin-bottom:12px;"></div>
-
-      <div class="section-title">Supporting documents</div>
-
-      <div class="field">
-        <label>Supporting document type</label>
-        <select id="docType">
-          <option value="">— Select —</option>
-          <option value="none_needed">No additional documents needed (standard renewal, no name change)</option>
-          <option value="deed_poll">Deed poll (name differs from NRIC)</option>
-          <option value="marriage_cert">Marriage certificate (name change after marriage)</option>
-          <option value="birth_certificate">Birth certificate (child application)</option>
-          <option value="adoption_order">Court adoption order</option>
-          <option value="citizenship_cert">Singapore citizenship certificate</option>
-          <option value="unsure">I'm not sure what I need</option>
-        </select>
-        <div class="warning" id="warn-docType"></div>
-        <div class="valid-msg" id="ok-docType">Document type accepted</div>
-      </div>
-
-      <div class="conditional" id="deedPollReason">
-        <div class="field">
-          <label>Reason for name change <span class="hint">(why does the name differ?)</span></label>
-          <input type="text" id="deedPollText" placeholder="e.g. Name change after adoption">
-          <div class="warning" id="warn-deedPollText"></div>
+        <div class="photo-guidelines">
+          <strong>ICA photo requirements (ica.gov.sg/photo-guidelines):</strong>
+          <ul>
+            <li>Digital colour photo, taken within the last 3 months</li>
+            <li>Accepted formats: JPG, JPEG, PNG, HEIC, HEIF</li>
+            <li>Online upload size: 400 x 514 pixels</li>
+            <li>Maximum file size: 8 MB</li>
+            <li>Must meet ISO / ICAO specifications</li>
+            <li>No filters, no enhancements, no altered facial features</li>
+            <li>Avoid selfies where possible</li>
+          </ul>
         </div>
-      </div>
 
-      <div class="section-title">Declaration</div>
+        <div class="field">
+          <label>Photo file <span class="hint">(JPG, JPEG, PNG, HEIC, or HEIF, max 8 MB, 400 x 514 px)</span></label>
+          <input type="file" id="photoFile" accept=".jpg,.jpeg,.png,.heic,.heif">
+          <div class="warning" id="warn-photoFile"></div>
+          <div class="valid-msg" id="ok-photoFile">File accepted</div>
+        </div>
 
-      <div class="checkbox-field">
-        <input type="checkbox" id="declare">
-        <label for="declare">I declare that the information given is true and correct. I understand that giving false information is an offence.</label>
-      </div>
-      <div class="warning" id="warn-declare"></div>
+        <div class="checkbox-field">
+          <input type="checkbox" id="photoRecent">
+          <label for="photoRecent">I confirm this photo was taken within the last 3 months</label>
+        </div>
+        <div class="warning" id="warn-photoRecent" style="margin-top:-8px;margin-bottom:12px;"></div>
 
-      <div class="actions">
-        <button type="button" class="btn btn-primary" onclick="submitForm()">Submit application</button>
-        <button type="reset" class="btn btn-secondary">Clear form</button>
+        <div class="checkbox-field">
+          <input type="checkbox" id="photoUnedited">
+          <label for="photoUnedited">I confirm this photo has no filters, enhancements, or altered facial features</label>
+        </div>
+        <div class="warning" id="warn-photoUnedited" style="margin-top:-8px;margin-bottom:12px;"></div>
+
+        <div class="section-title">Supporting documents</div>
+
+        <div class="field">
+          <label>Supporting document type</label>
+          <select id="docType">
+            <option value="">— Select —</option>
+            <option value="none_needed">No additional documents needed (standard renewal, no name change)</option>
+            <option value="deed_poll">Deed poll (name differs from NRIC)</option>
+            <option value="marriage_cert">Marriage certificate (name change after marriage)</option>
+            <option value="birth_certificate">Birth certificate (child application)</option>
+            <option value="adoption_order">Court adoption order</option>
+            <option value="citizenship_cert">Singapore citizenship certificate</option>
+            <option value="unsure">I'm not sure what I need</option>
+          </select>
+          <div class="warning" id="warn-docType"></div>
+          <div class="valid-msg" id="ok-docType">Document type accepted</div>
+        </div>
+
+        <div class="conditional" id="deedPollReason">
+          <div class="field">
+            <label>Reason for name change <span class="hint">(why does the name differ?)</span></label>
+            <input type="text" id="deedPollText" placeholder="e.g. Name change after adoption">
+            <div class="warning" id="warn-deedPollText"></div>
+          </div>
+        </div>
+
+        <div class="section-title">Declaration</div>
+
+        <div class="checkbox-field">
+          <input type="checkbox" id="declare">
+          <label for="declare">I declare that the information given is true and correct. I understand that giving false information is an offence.</label>
+        </div>
+        <div class="warning" id="warn-declare"></div>
+
+        <div class="actions">
+          <button type="button" class="btn btn-primary" onclick="submitForm()">Submit application</button>
+          <button type="reset" class="btn btn-secondary">Clear form</button>
+        </div>
+      </form>
+    </div>
+
+    <div class="officer-report" id="officerReport">
+      <div class="report-card">
+        <div class="report-header">
+          <div class="report-header-left">
+            <h2>Officer Summary Report</h2>
+            <p>Auto-generated for the reviewing officer. All data is synthetic.</p>
+          </div>
+          <span class="report-badge" id="reportBadge"></span>
+        </div>
+        <table class="report-table">
+          <thead><tr><th>Field</th><th>Status</th></tr></thead>
+          <tbody id="reportBody"></tbody>
+        </table>
+        <div class="report-footer">
+          <span id="reportStats"></span>
+          <span id="reportVerdict"></span>
+        </div>
+        <div class="report-disclaimer">This report is a suggestion only. Final decisions stay with ICA officers.</div>
       </div>
-    </form>
+    </div>
+
   </div>
 
-  <!-- Officer report -->
-  <div class="officer-report" id="officerReport">
-    <div class="report-card">
-      <div class="report-header">
-        <div class="report-header-left">
-          <h2>Officer Summary Report</h2>
-          <p>Auto-generated for the reviewing officer. All data is synthetic.</p>
-        </div>
-        <span class="report-badge" id="reportBadge"></span>
+  <!-- ============ OFFICER TAB ============ -->
+  <div class="tab-content" id="tab-officer">
+    <div class="officer-card">
+      <h2>Officer Vetting Queue</h2>
+      <p class="sub">Review submitted applications. Approve or return with reasons. All data is synthetic.</p>
+      <div id="officerQueue">
+        <div class="officer-empty">No submissions yet. Switch to Applicant View, fill in a form, and submit.</div>
       </div>
-      <table class="report-table">
-        <thead>
-          <tr><th>Field</th><th>Status</th></tr>
-        </thead>
-        <tbody id="reportBody"></tbody>
-      </table>
-      <div class="report-footer">
-        <span id="reportStats"></span>
-        <span id="reportVerdict"></span>
-      </div>
-      <div class="report-disclaimer">This report is a suggestion only. Final decisions stay with ICA officers.</div>
     </div>
   </div>
 
