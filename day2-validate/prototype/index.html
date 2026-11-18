@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>ICA Passport Renewal — Child Application (Prototype)</title>
+<title>ICA Passport Application (Prototype)</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; color: #1a1a1a; line-height: 1.5; }
@@ -18,14 +18,20 @@
   input, select { width: 100%; padding: 10px 12px; border: 1px solid #ccc; border-radius: 4px; font-size: 15px; }
   input:focus, select:focus { outline: none; border-color: #3366cc; box-shadow: 0 0 0 2px rgba(51,102,204,0.2); }
   input.has-warning { border-color: #d63a3a; }
+  select.has-warning { border-color: #d63a3a; }
   .warning { display: none; margin-top: 4px; padding: 6px 10px; background: #fef2f2; border-left: 3px solid #d63a3a; border-radius: 2px; font-size: 13px; color: #b91c1c; }
   .warning.visible { display: block; }
   .valid-msg { display: none; margin-top: 4px; font-size: 13px; color: #16803c; }
   .valid-msg.visible { display: block; }
   .info-box { background: #eff6ff; border-left: 3px solid #3366cc; padding: 10px 12px; font-size: 13px; color: #1e40af; margin-bottom: 20px; border-radius: 2px; }
+  .photo-guidelines { background: #f0fdf4; border-left: 3px solid #16803c; padding: 10px 12px; font-size: 13px; color: #166534; margin-bottom: 20px; border-radius: 2px; }
+  .photo-guidelines ul { margin: 6px 0 0 16px; }
+  .photo-guidelines li { margin-bottom: 2px; }
   .checkbox-field { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 20px; }
   .checkbox-field input[type="checkbox"] { width: auto; margin-top: 3px; }
   .checkbox-field label { font-weight: 400; font-size: 14px; }
+  .conditional { display: none; }
+  .conditional.visible { display: block; }
   .actions { margin-top: 28px; display: flex; gap: 12px; }
   .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; }
   .btn-primary { background: #3366cc; color: #fff; }
@@ -45,45 +51,127 @@
 <div class="banner">PROTOTYPE — All data is synthetic and made up. Not a real ICA system.</div>
 
 <div class="container">
-  <h1>Passport Renewal — Child Application</h1>
-  <p class="subtitle">Parent or guardian submitting on behalf of a child below 16. Passport valid for 5 years.</p>
+  <h1>Singapore Passport Application</h1>
+  <p class="subtitle">New application or renewal for all applicants</p>
 
   <div class="info-box">
-    Based on ICA requirements: you need a passport-sized digital colour photo taken within the last 3 months (ICAO compliant), the child's birth certificate, and the applicant must be a parent or legal guardian.
+    Based on ICA requirements. Passports are valid for 10 years (age 16 and above) or 5 years (below 16). You need a digital colour photo meeting ICAO standards, your NRIC, and supporting documents for your situation.
   </div>
 
   <form id="appForm" novalidate>
 
-    <div class="section-title">Child's particulars</div>
+    <div class="section-title">Application type</div>
 
     <div class="field">
-      <label>Child's full name <span class="hint">(as printed on birth certificate, in BLOCK LETTERS)</span></label>
-      <input type="text" id="childName" placeholder="e.g. TAN WEI LIN">
-      <div class="warning" id="warn-childName"></div>
-      <div class="valid-msg" id="ok-childName">Matches expected format</div>
+      <label>What are you applying for?</label>
+      <select id="appType">
+        <option value="">— Select —</option>
+        <option value="new_adult">New passport (age 16 and above)</option>
+        <option value="renew_adult">Renewal (age 16 and above)</option>
+        <option value="new_child">New passport (below 16)</option>
+        <option value="renew_child">Renewal (below 16)</option>
+      </select>
+      <div class="warning" id="warn-appType"></div>
+    </div>
+
+    <div class="section-title">Applicant's particulars</div>
+
+    <div class="field">
+      <label>Full name <span class="hint">(as on NRIC, in BLOCK LETTERS)</span></label>
+      <input type="text" id="fullName" placeholder="e.g. TAN WEI LIN">
+      <div class="warning" id="warn-fullName"></div>
+      <div class="valid-msg" id="ok-fullName">Matches expected format</div>
     </div>
 
     <div class="field">
-      <label>Child's date of birth</label>
-      <input type="date" id="childDob">
-      <div class="warning" id="warn-childDob"></div>
-      <div class="valid-msg" id="ok-childDob">Age is within range</div>
+      <label>NRIC number <span class="hint">(e.g. S8234567A)</span></label>
+      <input type="text" id="nric" placeholder="S8234567A" maxlength="9">
+      <div class="warning" id="warn-nric"></div>
+      <div class="valid-msg" id="ok-nric">Format is valid</div>
     </div>
 
     <div class="field">
-      <label>Child's NRIC / Birth certificate number <span class="hint">(e.g. T1234567A)</span></label>
-      <input type="text" id="childNric" placeholder="T1234567A" maxlength="9">
-      <div class="warning" id="warn-childNric"></div>
-      <div class="valid-msg" id="ok-childNric">Format is valid</div>
+      <label>Date of birth</label>
+      <input type="date" id="dob">
+      <div class="warning" id="warn-dob"></div>
+      <div class="valid-msg" id="ok-dob">Age matches application type</div>
+    </div>
+
+    <div class="field">
+      <label>Email address <span class="hint">(for application updates)</span></label>
+      <input type="email" id="email" placeholder="e.g. name@example.com">
+      <div class="warning" id="warn-email"></div>
+      <div class="valid-msg" id="ok-email">Format is valid</div>
+    </div>
+
+    <div class="field">
+      <label>Contact number <span class="hint">(Singapore mobile, 8 digits)</span></label>
+      <input type="tel" id="phone" placeholder="e.g. 91234567" maxlength="8">
+      <div class="warning" id="warn-phone"></div>
+      <div class="valid-msg" id="ok-phone">Format is valid</div>
+    </div>
+
+    <!-- Parent/guardian section for child applications -->
+    <div class="conditional" id="childSection">
+      <div class="section-title">Parent / guardian (required for applicants below 16)</div>
+
+      <div class="field">
+        <label>Parent / guardian NRIC <span class="hint">(e.g. S8234567A)</span></label>
+        <input type="text" id="parentNric" placeholder="S8234567A" maxlength="9">
+        <div class="warning" id="warn-parentNric"></div>
+        <div class="valid-msg" id="ok-parentNric">Format is valid</div>
+      </div>
+
+      <div class="field">
+        <label>Relationship to applicant</label>
+        <select id="relationship">
+          <option value="">— Select —</option>
+          <option value="mother">Mother</option>
+          <option value="father">Father</option>
+          <option value="legal_guardian">Legal guardian</option>
+          <option value="sibling">Sibling</option>
+          <option value="grandparent">Grandparent</option>
+          <option value="other">Other</option>
+        </select>
+        <div class="warning" id="warn-relationship"></div>
+        <div class="valid-msg" id="ok-relationship">Accepted</div>
+      </div>
+
+      <div class="conditional" id="guardianProofField">
+        <div class="field">
+          <label>Legal guardianship proof</label>
+          <select id="guardianProof">
+            <option value="">— Select —</option>
+            <option value="court_order">Court order</option>
+            <option value="letter">Letter of guardianship</option>
+            <option value="none">I don't have proof</option>
+          </select>
+          <div class="warning" id="warn-guardianProof"></div>
+        </div>
+      </div>
     </div>
 
     <div class="section-title">Passport photo</div>
 
+    <div class="photo-guidelines">
+      <strong>ICA photo requirements (ica.gov.sg/photo-guidelines):</strong>
+      <ul>
+        <li>Digital colour photo, taken within the last 3 months</li>
+        <li>Accepted formats: JPG, JPEG, PNG, HEIC, HEIF</li>
+        <li>Online upload size: 400 x 514 pixels</li>
+        <li>Maximum file size: 8 MB</li>
+        <li>Must meet ISO / ICAO specifications</li>
+        <li>No filters, no enhancements, no altered facial features</li>
+        <li>Avoid selfies where possible (have someone photograph you)</li>
+        <li>If using a phone, resize with image editing software, no enhancements</li>
+      </ul>
+    </div>
+
     <div class="field">
-      <label>Photo file <span class="hint">(JPG only, 400 x 514 px, taken within last 3 months, white background)</span></label>
-      <input type="file" id="photoFile" accept=".jpg,.jpeg">
+      <label>Photo file <span class="hint">(JPG, JPEG, PNG, HEIC, or HEIF, max 8 MB, 400 x 514 px)</span></label>
+      <input type="file" id="photoFile" accept=".jpg,.jpeg,.png,.heic,.heif">
       <div class="warning" id="warn-photoFile"></div>
-      <div class="valid-msg" id="ok-photoFile">File format accepted</div>
+      <div class="valid-msg" id="ok-photoFile">File accepted</div>
     </div>
 
     <div class="checkbox-field">
@@ -92,60 +180,36 @@
     </div>
     <div class="warning" id="warn-photoRecent" style="margin-top:-12px;margin-bottom:16px;"></div>
 
+    <div class="checkbox-field">
+      <input type="checkbox" id="photoUnedited">
+      <label for="photoUnedited">I confirm this photo has no filters, enhancements, or altered facial features</label>
+    </div>
+    <div class="warning" id="warn-photoUnedited" style="margin-top:-12px;margin-bottom:16px;"></div>
+
     <div class="section-title">Supporting documents</div>
 
     <div class="field">
       <label>Supporting document type</label>
       <select id="docType">
         <option value="">— Select —</option>
-        <option value="birth_certificate">Birth certificate</option>
-        <option value="deed_poll">Deed poll (if child's name differs from birth certificate)</option>
+        <option value="none_needed">No additional documents needed (standard renewal, no name change)</option>
+        <option value="deed_poll">Deed poll (name differs from NRIC)</option>
+        <option value="marriage_cert">Marriage certificate (name change after marriage)</option>
+        <option value="birth_certificate">Birth certificate (child application)</option>
         <option value="adoption_order">Court adoption order</option>
-        <option value="none">I don't have any of these</option>
+        <option value="citizenship_cert">Singapore citizenship certificate</option>
+        <option value="unsure">I'm not sure what I need</option>
       </select>
       <div class="warning" id="warn-docType"></div>
       <div class="valid-msg" id="ok-docType">Document type accepted</div>
     </div>
 
-    <div class="field" id="deedPollReason" style="display:none;">
-      <label>Reason for deed poll <span class="hint">(why does the name differ?)</span></label>
-      <input type="text" id="deedPollText" placeholder="e.g. Name change after adoption">
-      <div class="warning" id="warn-deedPollText"></div>
-    </div>
-
-    <div class="section-title">Applicant (parent / guardian)</div>
-
-    <div class="field">
-      <label>Your NRIC <span class="hint">(e.g. S8234567A)</span></label>
-      <input type="text" id="parentNric" placeholder="S8234567A" maxlength="9">
-      <div class="warning" id="warn-parentNric"></div>
-      <div class="valid-msg" id="ok-parentNric">Format is valid</div>
-    </div>
-
-    <div class="field">
-      <label>Relationship to child</label>
-      <select id="relationship">
-        <option value="">— Select —</option>
-        <option value="mother">Mother</option>
-        <option value="father">Father</option>
-        <option value="legal_guardian">Legal guardian</option>
-        <option value="sibling">Sibling</option>
-        <option value="grandparent">Grandparent</option>
-        <option value="other">Other</option>
-      </select>
-      <div class="warning" id="warn-relationship"></div>
-      <div class="valid-msg" id="ok-relationship">Accepted</div>
-    </div>
-
-    <div class="field" id="guardianProofField" style="display:none;">
-      <label>Legal guardianship proof <span class="hint">(court order or letter of guardianship)</span></label>
-      <select id="guardianProof">
-        <option value="">— Select —</option>
-        <option value="court_order">Court order</option>
-        <option value="letter">Letter of guardianship</option>
-        <option value="none">I don't have proof</option>
-      </select>
-      <div class="warning" id="warn-guardianProof"></div>
+    <div class="conditional" id="deedPollReason">
+      <div class="field">
+        <label>Reason for deed poll <span class="hint">(why does the name differ?)</span></label>
+        <input type="text" id="deedPollText" placeholder="e.g. Name change after adoption">
+        <div class="warning" id="warn-deedPollText"></div>
+      </div>
     </div>
 
     <div class="section-title">Declaration</div>
