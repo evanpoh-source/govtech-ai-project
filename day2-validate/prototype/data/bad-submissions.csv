@@ -1,0 +1,15 @@
+## ALL DATA IN THIS FILE IS SYNTHETIC AND MADE UP. Deliberately incorrect submissions for testing the checker.
+## Each row has one or more errors. The "expected_flags" column lists which fields should be caught.
+test_id,app_type,full_name,nric,dob,email,phone,parent_nric,relationship,doc_type,expected_flags
+1,renew_child,tan wei lin,T1234567A,2018-03-14,test@example.com,91234567,S8234567A,mother,birth_certificate,"full_name: lowercase not block letters"
+2,new_child,TAN WEI LIN,X9999999Z,2018-03-14,test@example.com,91234567,S8234567A,mother,birth_certificate,"nric: invalid format (X prefix)"
+3,renew_adult,WONG YU XUAN,S7823456F,2020-05-18,test@example.com,91234567,,,none_needed,"dob: age below 16 on adult application"
+4,new_child,LIM JUN HAO,T1234567A,2008-01-15,test@example.com,91234567,S8234567A,sibling,birth_certificate,"relationship: sibling not accepted"
+5,renew_child,CHUA KAI TING,T5678901G,2019-11-03,test@example.com,91234567,T5678901G,father,birth_certificate,"parent_nric: same as child nric"
+6,new_adult,GOH RUI EN,S8012345H,1990-06-20,not-an-email,91234567,,,none_needed,"email: invalid format"
+7,renew_child,NG XIN YI,T2345678B,2017-09-09,test@example.com,1234,S8456789C,mother,birth_certificate,"phone: too short and wrong start digit"
+8,new_child,,T3456789C,2021-02-07,test@example.com,91234567,S8567890G,mother,birth_certificate,"full_name: empty"
+9,renew_adult,LEE JIA WEN,S834567,1985-04-22,test@example.com,91234567,,,none_needed,"nric: too short (7 chars)"
+10,new_child,TAN123 WEI,T1234567A,2019-08-16,test@example.com,91234567,S8234567A,mother,unsure,"full_name: contains numbers; doc_type: unsure triggers guidance"
+11,renew_child,ONG ZHI XUAN,T4567890D,2015-01-30,test@example.com,91234567,S8101234D,legal_guardian,birth_certificate,"guardian_proof: not provided (legal guardian selected)"
+12,new_child,KEE AH BOY,T7777777A,2016-04-01,test@example.com,91234567,S7945678K,father,none_needed,"doc_type: child app without birth certificate"

@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>False Positive Test — ICA Passport Checker (Prototype)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #f5f5f5; color: #1a1a1a; line-height: 1.5; }
+  .banner { background: #d63a3a; color: #fff; text-align: center; padding: 8px; font-size: 13px; }
+  .container { max-width: 800px; margin: 24px auto; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 32px; }
+  h1 { font-size: 20px; margin-bottom: 4px; }
+  .subtitle { font-size: 14px; color: #555; margin-bottom: 16px; }
+  .explanation { background: #eff6ff; border-left: 3px solid #3366cc; padding: 10px 12px; font-size: 13px; color: #1e40af; margin-bottom: 24px; border-radius: 2px; }
+  .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; background: #3366cc; color: #fff; margin-bottom: 24px; }
+  .btn:hover { background: #2851a3; }
+  .summary { padding: 16px; border-radius: 6px; margin-bottom: 24px; font-size: 15px; font-weight: 600; }
+  .summary.pass { background: #f0fdf4; border: 1px solid #86efac; color: #166534; }
+  .summary.fail { background: #fef2f2; border: 1px solid #fca5a5; color: #991b1b; }
+  .summary.hidden { display: none; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  th { background: #f8f9fa; text-align: left; padding: 8px 10px; border-bottom: 2px solid #ddd; }
+  td { padding: 8px 10px; border-bottom: 1px solid #eee; vertical-align: top; }
+  tr.caught td { background: #f0fdf4; }
+  tr.missed td { background: #fef2f2; }
+  .badge { display: inline-block; padding: 2px 8px; border-radius: 3px; font-size: 11px; font-weight: 700; }
+  .badge.caught { background: #dcfce7; color: #166534; }
+  .badge.missed { background: #fee2e2; color: #991b1b; }
+  .badge.false-ok { background: #991b1b; color: #fff; }
+</style>
+</head>
+<body>
+
+<div class="banner">PROTOTYPE TEST — All data is synthetic and made up. Tests the riskiest assumption: false positives reaching the officer report.</div>
+
+<div class="container">
+  <h1>False Positive Test</h1>
+  <p class="subtitle">Does the checker catch bad inputs, or does it let them through as "OK" to the officer?</p>
+
+  <div class="explanation">
+    <strong>What this tests:</strong> 12 deliberately bad submissions are run through the checker. Each has at least one known error. The test checks whether the officer summary report correctly flags every bad field. If any known-bad field shows as "OK" in the officer report, that is a false positive and the kill switch fires.
+  </div>
+
+  <button class="btn" onclick="runTests()">Run all 12 tests</button>
+
+  <div class="summary hidden" id="summary"></div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>#</th>
+        <th>App type</th>
+        <th>What's wrong</th>
+        <th>Checker result</th>
+        <th>Officer report</th>
+      </tr>
+    </thead>
+    <tbody id="results"></tbody>
+  </table>
+</div>
+
+<script>
+var BAD_SUBMISSIONS = [
+  {
+    id: 1, appType: "renew_child", fullName: "tan wei lin", nric: "T1234567A",
+    dob: "2018-03-14", email: "test@example.com", phone: "91234567",
+    parentNric: "S8234567A", relationship: "mother", docType: "birth_certificate",
+    expectedFlags: ["fullName"],
+    desc: "Name in lowercase, not BLOCK LETTERS"
+  },
+  {
+    id: 2, appType: "new_child", fullName: "TAN WEI LIN", nric: "X9999999Z",
+    dob: "2018-03-14", email: "test@example.com", phone: "91234567",
+    parentNric: "S8234567A", relationship: "mother", docType: "birth_certificate",
+    expectedFlags: ["nric"],
+    desc: "NRIC has invalid X prefix"
+  },
+  {
+    id: 3, appType: "renew_adult", fullName: "WONG YU XUAN", nric: "S7823456F",
+    dob: "2020-05-18", email: "test@example.com", phone: "91234567",
+    parentNric: "", relationship: "", docType: "none_needed",
+    expectedFlags: ["dob"],
+    desc: "Adult app but DOB makes applicant under 16"
+  },
+  {
+    id: 4, appType: "new_child", fullName: "LIM JUN HAO", nric: "T1234567A",
+    dob: "2018-01-15", email: "test@example.com", phone: "91234567",
+    parentNric: "S8234567A", relationship: "sibling", docType: "birth_certificate",
+    expectedFlags: ["relationship"],
+    desc: "Relationship is sibling (not accepted)"
+  },
+  {
+    id: 5, appType: "renew_child", fullName: "CHUA KAI TING", nric: "T5678901G",
+    dob: "2019-11-03", email: "test@example.com", phone: "91234567",
+    parentNric: "T5678901G", relationship: "father", docType: "birth_certificate",
+    expectedFlags: ["parentNric"],
+    desc: "Parent NRIC same as child NRIC"
+  },
+  {
+    id: 6, appType: "new_adult", fullName: "GOH RUI EN", nric: "S8012345H",
+    dob: "1990-06-20", email: "not-an-email", phone: "91234567",
+    parentNric: "", relationship: "", docType: "none_needed",
+    expectedFlags: ["email"],
+    desc: "Invalid email format"
+  },
+  {
+    id: 7, appType: "renew_child", fullName: "NG XIN YI", nric: "T2345678B",
+    dob: "2017-09-09", email: "test@example.com", phone: "1234",
+    parentNric: "S8456789C", relationship: "mother", docType: "birth_certificate",
+    expectedFlags: ["phone"],
+    desc: "Phone too short, wrong start digit"
+  },
+  {
+    id: 8, appType: "new_child", fullName: "", nric: "T3456789C",
+    dob: "2021-02-07", email: "test@example.com", phone: "91234567",
+    parentNric: "S8567890G", relationship: "mother", docType: "birth_certificate",
+    expectedFlags: ["fullName"],
+    desc: "Name is empty"
+  },
+  {
+    id: 9, appType: "renew_adult", fullName: "LEE JIA WEN", nric: "S834567",
+    dob: "1985-04-22", email: "test@example.com", phone: "91234567",
+    parentNric: "", relationship: "", docType: "none_needed",
+    expectedFlags: ["nric"],
+    desc: "NRIC too short (7 chars)"
+  },
+  {
+    id: 10, appType: "new_child", fullName: "TAN123 WEI", nric: "T1234567A",
+    dob: "2019-08-16", email: "test@example.com", phone: "91234567",
+    parentNric: "S8234567A", relationship: "mother", docType: "unsure",
+    expectedFlags: ["fullName", "docType"],
+    desc: "Name has numbers; doc type is 'unsure'"
+  },
+  {
+    id: 11, appType: "renew_child", fullName: "ONG ZHI XUAN", nric: "T4567890D",
+    dob: "2015-01-30", email: "test@example.com", phone: "91234567",
+    parentNric: "S8101234D", relationship: "legal_guardian", docType: "birth_certificate",
+    expectedFlags: ["guardianProof"],
+    desc: "Legal guardian selected but no proof provided"
+  },
+  {
+    id: 12, appType: "new_child", fullName: "KEE AH BOY", nric: "T7777777A",
+    dob: "2016-04-01", email: "test@example.com", phone: "91234567",
+    parentNric: "S7945678K", relationship: "father", docType: "none_needed",
+    expectedFlags: ["docType"],
+    desc: "Child app but 'no additional documents' selected (needs birth cert)"
+  }
+];
+
+var RULES = {
+  nameFormat: /^[A-Z][A-Z\s'@\-]{1,60}$/,
+  nameHasLowerCase: /[a-z]/,
+  nricFormat: /^[STFGM]\d{7}[A-Z]$/i,
+  childNricPrefix: /^[T]\d{7}[A-Z]$/i,
+  adultNricPrefix: /^[STFG]\d{7}[A-Z]$/i,
+  emailFormat: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+  phoneFormat: /^[689]\d{7}$/,
+  childAppTypes: ["new_child", "renew_child"],
+  adultAppTypes: ["new_adult", "renew_adult"],
+  acceptedRelationships: ["mother", "father", "legal_guardian"],
+  rejectedRelationships: ["sibling", "grandparent", "other"],
+  validDocTypes: ["none_needed", "deed_poll", "marriage_cert", "birth_certificate", "adoption_order", "citizenship_cert"]
+};
+
+function validate(sub) {
+  var flags = {};
+  var isChild = RULES.childAppTypes.includes(sub.appType);
+
+  // Name
+  if (!sub.fullName || sub.fullName.trim() === "") {
+    flags.fullName = "empty, needs input";
+  } else if (RULES.nameHasLowerCase.test(sub.fullName)) {
+    flags.fullName = "lowercase, not BLOCK LETTERS";
+  } else if (/\d/.test(sub.fullName)) {
+    flags.fullName = "contains numbers";
+  } else if (!RULES.nameFormat.test(sub.fullName.trim())) {
+    flags.fullName = "format mismatch";
+  }
+
+  // NRIC
+  if (!sub.nric || sub.nric.trim() === "") {
+    flags.nric = "empty";
+  } else if (sub.nric.trim().length !== 9) {
+    flags.nric = "not 9 characters";
+  } else if (!RULES.nricFormat.test(sub.nric.trim())) {
+    flags.nric = "invalid format";
+  } else if (isChild && !RULES.childNricPrefix.test(sub.nric.trim())) {
+    flags.nric = "child NRIC should start with T";
+  }
+
+  // DOB
+  if (sub.dob) {
+    var dob = new Date(sub.dob);
+    var today = new Date();
+    var age = (today - dob) / (365.25 * 24 * 60 * 60 * 1000);
+    if (isChild && age >= 16) {
+      flags.dob = "child app but age >= 16";
+    }
+    if (RULES.adultAppTypes.includes(sub.appType) && age < 16) {
+      flags.dob = "adult app but age < 16";
+    }
+  }
+
+  // Email
+  if (sub.email && !RULES.emailFormat.test(sub.email.trim())) {
+    flags.email = "invalid format";
+  }
+
+  // Phone
+  if (sub.phone && !RULES.phoneFormat.test(sub.phone.trim())) {
+    flags.phone = "invalid SG mobile format";
+  }
+
+  // Parent NRIC (child apps)
+  if (isChild) {
+    if (!sub.parentNric || sub.parentNric.trim() === "") {
+      flags.parentNric = "empty";
+    } else if (!RULES.adultNricPrefix.test(sub.parentNric.trim())) {
+      flags.parentNric = "invalid format";
+    } else if (sub.parentNric.trim().toUpperCase() === sub.nric.trim().toUpperCase()) {
+      flags.parentNric = "same as child NRIC";
+    }
+  }
+
+  // Relationship (child apps)
+  if (isChild) {
+    if (!sub.relationship) {
+      flags.relationship = "empty";
+    } else if (RULES.rejectedRelationships.includes(sub.relationship)) {
+      flags.relationship = sub.relationship + " not accepted";
+    }
+  }
+
+  // Guardian proof (child + legal_guardian)
+  if (isChild && sub.relationship === "legal_guardian") {
+    flags.guardianProof = "no proof provided";
+  }
+
+  // Document type
+  if (sub.docType === "unsure") {
+    flags.docType = "applicant unsure what documents needed";
+  } else if (isChild && sub.docType === "none_needed") {
+    flags.docType = "child app needs birth certificate";
+  }
+
+  return flags;
+}
+
+function runTests() {
+  var tbody = document.getElementById("results");
+  tbody.innerHTML = "";
+
+  var totalExpected = 0;
+  var totalCaught = 0;
+  var falseOkCount = 0;
+
+  BAD_SUBMISSIONS.forEach(function (sub) {
+    var flags = validate(sub);
+    var caught = [];
+    var missed = [];
+
+    sub.expectedFlags.forEach(function (field) {
+      totalExpected++;
+      if (flags[field]) {
+        caught.push(field + ": " + flags[field]);
+        totalCaught++;
+      } else {
+        missed.push(field);
+        falseOkCount++;
+      }
+    });
+
+    var rowClass = missed.length > 0 ? "missed" : "caught";
+    var tr = document.createElement("tr");
+    tr.className = rowClass;
+
+    var badgeHtml = "";
+    if (missed.length > 0) {
+      badgeHtml = '<span class="badge false-ok">FALSE OK — KILL SWITCH</span>';
+    } else {
+      badgeHtml = '<span class="badge caught">CAUGHT</span>';
+    }
+
+    var reportLines = [];
+    caught.forEach(function (c) {
+      reportLines.push('<span class="badge caught">Flagged</span> ' + c);
+    });
+    missed.forEach(function (m) {
+      reportLines.push('<span class="badge false-ok">Shown as OK</span> ' + m);
+    });
+
+    tr.innerHTML =
+      "<td>" + sub.id + "</td>" +
+      "<td>" + sub.appType + "</td>" +
+      "<td>" + sub.desc + "</td>" +
+      "<td>" + badgeHtml + "</td>" +
+      "<td>" + reportLines.join("<br>") + "</td>";
+
+    tbody.appendChild(tr);
+  });
+
+  var summaryEl = document.getElementById("summary");
+  summaryEl.classList.remove("hidden", "pass", "fail");
+
+  var catchRate = totalExpected > 0 ? Math.round((totalCaught / totalExpected) * 100) : 0;
+
+  if (falseOkCount === 0) {
+    summaryEl.classList.add("pass");
+    summaryEl.textContent = "PASS — " + totalCaught + "/" + totalExpected + " bad fields caught (" + catchRate + "%). Zero false positives in officer report. Kill switch not triggered.";
+  } else {
+    summaryEl.classList.add("fail");
+    summaryEl.textContent = "FAIL — KILL SWITCH TRIGGERED. " + falseOkCount + " bad field(s) shown as OK in officer report. " + totalCaught + "/" + totalExpected + " caught (" + catchRate + "%). Do not deploy.";
+  }
+}
+</script>
+
+</body>
+</html>
