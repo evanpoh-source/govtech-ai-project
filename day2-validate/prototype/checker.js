@@ -22,6 +22,83 @@ var RULES = {
   adultAppTypes: ["new_adult", "renew_adult"]
 };
 
+// --- Progress bar ---
+
+function getVisibleFields() {
+  var base = [
+    { id: "appType", type: "select" },
+    { id: "fullName", type: "text" },
+    { id: "nric", type: "text" },
+    { id: "dob", type: "date" },
+    { id: "email", type: "text" },
+    { id: "phone", type: "text" },
+    { id: "photoFile", type: "file" },
+    { id: "photoRecent", type: "checkbox" },
+    { id: "photoUnedited", type: "checkbox" },
+    { id: "docType", type: "select" },
+    { id: "declare", type: "checkbox" }
+  ];
+
+  if (isChildApp()) {
+    base.splice(6, 0,
+      { id: "parentNric", type: "text" },
+      { id: "relationship", type: "select" }
+    );
+    if (document.getElementById("relationship").value === "legal_guardian") {
+      base.splice(8, 0, { id: "guardianProof", type: "select" });
+    }
+  }
+
+  var docVal = document.getElementById("docType").value;
+  if (docVal === "deed_poll" || docVal === "marriage_cert") {
+    base.push({ id: "deedPollText", type: "text" });
+  }
+
+  return base;
+}
+
+function getFieldState(f) {
+  var warnEl = document.getElementById("warn-" + f.id);
+  var hasFlagVisible = warnEl && warnEl.classList.contains("visible");
+
+  if (f.type === "checkbox") {
+    var checked = document.getElementById(f.id).checked;
+    if (!checked) return "empty";
+    if (hasFlagVisible) return "flagged";
+    return "valid";
+  }
+  if (f.type === "file") {
+    var fileInput = document.getElementById(f.id);
+    if (!fileInput.files || !fileInput.files[0]) return "empty";
+    if (hasFlagVisible) return "flagged";
+    return "valid";
+  }
+  var val = document.getElementById(f.id).value;
+  if (!val) return "empty";
+  if (hasFlagVisible) return "flagged";
+  return "valid";
+}
+
+function updateProgress() {
+  var fields = getVisibleFields();
+  var track = document.getElementById("progressTrack");
+  var text = document.getElementById("progressText");
+  track.innerHTML = "";
+
+  var complete = 0;
+  fields.forEach(function (f) {
+    var state = getFieldState(f);
+    var seg = document.createElement("div");
+    seg.className = "progress-seg " + state;
+    track.appendChild(seg);
+    if (state === "valid") complete++;
+  });
+
+  text.textContent = complete + " of " + fields.length + " fields complete";
+}
+
+// --- Helpers ---
+
 function warn(fieldId, msg) {
   var el = document.getElementById("warn-" + fieldId);
   var ok = document.getElementById("ok-" + fieldId);
@@ -31,6 +108,7 @@ function warn(fieldId, msg) {
   el.classList.add("visible");
   if (ok) ok.classList.remove("visible");
   if (input && input.classList) input.classList.add("has-warning");
+  updateProgress();
 }
 
 function clearWarn(fieldId) {
@@ -47,6 +125,7 @@ function markOk(fieldId) {
   clearWarn(fieldId);
   var ok = document.getElementById("ok-" + fieldId);
   if (ok) ok.classList.add("visible");
+  updateProgress();
 }
 
 function isChildApp() {
@@ -56,10 +135,11 @@ function isChildApp() {
 function show(id) { document.getElementById(id).classList.add("visible"); }
 function hide(id) { document.getElementById(id).classList.remove("visible"); }
 
-// --- Application type ---
+// --- Validators ---
+
 function checkAppType() {
   var val = document.getElementById("appType").value;
-  if (!val) { clearWarn("appType"); hide("childSection"); return; }
+  if (!val) { clearWarn("appType"); hide("childSection"); updateProgress(); return; }
   if (isChildApp()) {
     show("childSection");
   } else {
@@ -70,12 +150,12 @@ function checkAppType() {
     clearWarn("guardianProof");
   }
   clearWarn("appType");
+  updateProgress();
 }
 
-// --- Name ---
 function checkFullName() {
   var val = document.getElementById("fullName").value.trim();
-  if (!val) { clearWarn("fullName"); return; }
+  if (!val) { clearWarn("fullName"); updateProgress(); return; }
   if (val.length < 2) {
     warn("fullName", "Name seems too short. Enter the full name as printed on your NRIC.");
     return;
@@ -95,10 +175,9 @@ function checkFullName() {
   markOk("fullName");
 }
 
-// --- NRIC ---
 function checkNric() {
   var val = document.getElementById("nric").value.trim().toUpperCase();
-  if (!val) { clearWarn("nric"); return; }
+  if (!val) { clearWarn("nric"); updateProgress(); return; }
   if (val.length !== 9) {
     warn("nric", "NRIC must be exactly 9 characters (e.g. S8234567A).");
     return;
@@ -115,10 +194,9 @@ function checkNric() {
   markOk("nric");
 }
 
-// --- Date of birth ---
 function checkDob() {
   var val = document.getElementById("dob").value;
-  if (!val) { clearWarn("dob"); return; }
+  if (!val) { clearWarn("dob"); updateProgress(); return; }
   var dob = new Date(val);
   var today = new Date();
   var ageYears = (today - dob) / (365.25 * 24 * 60 * 60 * 1000);
@@ -138,10 +216,9 @@ function checkDob() {
   markOk("dob");
 }
 
-// --- Email ---
 function checkEmail() {
   var val = document.getElementById("email").value.trim();
-  if (!val) { clearWarn("email"); return; }
+  if (!val) { clearWarn("email"); updateProgress(); return; }
   if (!RULES.emailFormat.test(val)) {
     warn("email", "Email format looks incorrect. Expected format: name@example.com");
     return;
@@ -149,10 +226,9 @@ function checkEmail() {
   markOk("email");
 }
 
-// --- Phone ---
 function checkPhone() {
   var val = document.getElementById("phone").value.trim();
-  if (!val) { clearWarn("phone"); return; }
+  if (!val) { clearWarn("phone"); updateProgress(); return; }
   if (!RULES.phoneFormat.test(val)) {
     warn("phone", "Singapore mobile numbers are 8 digits starting with 6, 8, or 9 (e.g. 91234567).");
     return;
@@ -160,11 +236,10 @@ function checkPhone() {
   markOk("phone");
 }
 
-// --- Parent NRIC ---
 function checkParentNric() {
   if (!isChildApp()) return;
   var val = document.getElementById("parentNric").value.trim().toUpperCase();
-  if (!val) { clearWarn("parentNric"); return; }
+  if (!val) { clearWarn("parentNric"); updateProgress(); return; }
   if (val.length !== 9) {
     warn("parentNric", "NRIC must be exactly 9 characters (e.g. S8234567A).");
     return;
@@ -181,11 +256,10 @@ function checkParentNric() {
   markOk("parentNric");
 }
 
-// --- Relationship ---
 function checkRelationship() {
   if (!isChildApp()) return;
   var val = document.getElementById("relationship").value;
-  if (!val) { clearWarn("relationship"); hide("guardianProofField"); return; }
+  if (!val) { clearWarn("relationship"); hide("guardianProofField"); updateProgress(); return; }
   if (RULES.rejectedRelationships.includes(val)) {
     warn("relationship", "Only a parent or legal guardian can apply on behalf of a child below 16. Siblings, grandparents, and others are not accepted in correct submissions.");
     hide("guardianProofField");
@@ -200,24 +274,23 @@ function checkRelationship() {
   markOk("relationship");
 }
 
-// --- Guardian proof ---
 function checkGuardianProof() {
   if (!isChildApp()) return;
   var relVal = document.getElementById("relationship").value;
   if (relVal !== "legal_guardian") return;
   var val = document.getElementById("guardianProof").value;
-  if (!val) { clearWarn("guardianProof"); return; }
+  if (!val) { clearWarn("guardianProof"); updateProgress(); return; }
   if (val === "none") {
     warn("guardianProof", "Legal guardians must provide proof (court order or letter of guardianship). Without it, the application will be returned.");
   } else {
     clearWarn("guardianProof");
+    updateProgress();
   }
 }
 
-// --- Photo file (ICA photo guidelines) ---
 function checkPhoto() {
   var input = document.getElementById("photoFile");
-  if (!input.files || !input.files[0]) { clearWarn("photoFile"); return; }
+  if (!input.files || !input.files[0]) { clearWarn("photoFile"); updateProgress(); return; }
   var file = input.files[0];
   var ext = file.name.split(".").pop().toLowerCase();
 
@@ -230,12 +303,10 @@ function checkPhoto() {
     warn("photoFile", "Maximum file size is 8 MB (per ICA guidelines). Your file is " + sizeMB + " MB.");
     return;
   }
-
   if (ext === "heic" || ext === "heif") {
     markOk("photoFile");
     return;
   }
-
   var img = new Image();
   img.onload = function () {
     if (img.width !== RULES.photoWidth || img.height !== RULES.photoHeight) {
@@ -252,12 +323,12 @@ function checkPhoto() {
   img.src = URL.createObjectURL(file);
 }
 
-// --- Photo checkboxes ---
 function checkPhotoRecent() {
   if (!document.getElementById("photoRecent").checked) {
     warn("photoRecent", "You must confirm the photo was taken within the last 3 months. Older photos will be rejected (ICA requirement).");
   } else {
     clearWarn("photoRecent");
+    updateProgress();
   }
 }
 
@@ -266,14 +337,14 @@ function checkPhotoUnedited() {
     warn("photoUnedited", "ICA requires photos with no filters, enhancements, or altered facial features. Edited photos will be rejected.");
   } else {
     clearWarn("photoUnedited");
+    updateProgress();
   }
 }
 
-// --- Document type ---
 function checkDocType() {
   var val = document.getElementById("docType").value;
   var deedField = document.getElementById("deedPollReason");
-  if (!val) { clearWarn("docType"); deedField.classList.remove("visible"); return; }
+  if (!val) { clearWarn("docType"); deedField.classList.remove("visible"); updateProgress(); return; }
 
   if (val === "unsure") {
     warn("docType", "Not sure which documents you need? For standard renewals with no name change, select 'No additional documents needed'. For name changes, you need a deed poll or marriage certificate. For child applications, a birth certificate is required.");
@@ -299,7 +370,6 @@ function checkDocType() {
   markOk("docType");
 }
 
-// --- Deed poll reason ---
 function checkDeedPollText() {
   var docVal = document.getElementById("docType").value;
   if (docVal !== "deed_poll" && docVal !== "marriage_cert") return;
@@ -308,15 +378,14 @@ function checkDeedPollText() {
     warn("deedPollText", "Please explain why the name differs. Officers need this to process the application.");
   } else {
     clearWarn("deedPollText");
+    updateProgress();
   }
 }
 
 // --- Event listeners ---
+
 document.getElementById("appType").addEventListener("change", function () {
-  checkAppType();
-  checkDob();
-  checkNric();
-  checkDocType();
+  checkAppType(); checkDob(); checkNric(); checkDocType();
 });
 document.getElementById("fullName").addEventListener("blur", checkFullName);
 document.getElementById("nric").addEventListener("blur", checkNric);
@@ -331,8 +400,8 @@ document.getElementById("photoRecent").addEventListener("change", checkPhotoRece
 document.getElementById("photoUnedited").addEventListener("change", checkPhotoUnedited);
 document.getElementById("docType").addEventListener("change", checkDocType);
 document.getElementById("deedPollText").addEventListener("blur", checkDeedPollText);
+document.getElementById("declare").addEventListener("change", function () { updateProgress(); });
 
-// --- Reset ---
 document.getElementById("appForm").addEventListener("reset", function () {
   var allFields = ["appType","fullName","nric","dob","email","phone","parentNric","relationship","guardianProof","photoFile","photoRecent","photoUnedited","docType","deedPollText","declare"];
   allFields.forEach(function (id) {
@@ -344,9 +413,11 @@ document.getElementById("appForm").addEventListener("reset", function () {
   hide("guardianProofField");
   document.getElementById("deedPollReason").classList.remove("visible");
   document.getElementById("officerReport").style.display = "none";
+  setTimeout(updateProgress, 10);
 });
 
-// --- Submit ---
+// --- Submit and officer report ---
+
 function submitForm() {
   checkAppType();
   checkFullName();
@@ -382,7 +453,7 @@ function submitForm() {
     { id: "email", label: "Email" },
     { id: "phone", label: "Contact number" },
     { id: "parentNric", label: "Parent/guardian NRIC", conditional: isChildApp },
-    { id: "relationship", label: "Relationship to applicant", conditional: isChildApp },
+    { id: "relationship", label: "Relationship", conditional: isChildApp },
     { id: "guardianProof", label: "Guardianship proof", conditional: function () { return isChildApp() && document.getElementById("relationship").value === "legal_guardian"; } },
     { id: "photoFile", label: "Photo file", isFile: true },
     { id: "photoRecent", label: "Photo recency", isCheckbox: true },
@@ -392,48 +463,72 @@ function submitForm() {
     { id: "declare", label: "Declaration", isCheckbox: true }
   ];
 
-  var reportEl = document.getElementById("officerReport");
-  var listEl = document.getElementById("reportList");
-  listEl.innerHTML = "";
+  var reportBody = document.getElementById("reportBody");
+  var reportBadge = document.getElementById("reportBadge");
+  var reportStats = document.getElementById("reportStats");
+  var reportVerdict = document.getElementById("reportVerdict");
+  reportBody.innerHTML = "";
+
+  var okCount = 0;
+  var flagCount = 0;
+  var totalCount = 0;
 
   fields.forEach(function (f) {
     if (f.conditional && !f.conditional()) return;
+    totalCount++;
 
     var warnEl = document.getElementById("warn-" + f.id);
-    var li = document.createElement("li");
+    var tr = document.createElement("tr");
+    var isFlagged = false;
+    var statusHtml = "";
 
     if (warnEl && warnEl.classList.contains("visible")) {
-      li.className = "flagged";
-      li.textContent = f.label + ": " + warnEl.textContent;
+      isFlagged = true;
+      statusHtml = '<span class="status-icon">&#10007;</span><span class="status-flag">' + warnEl.textContent + '</span>';
     } else if (f.isFile) {
       var fileInput = document.getElementById(f.id);
       if (!fileInput.files || !fileInput.files[0]) {
-        li.className = "flagged";
-        li.textContent = f.label + ": no file uploaded";
-      } else {
-        li.className = "clean";
-        li.textContent = f.label + ": OK";
+        isFlagged = true;
+        statusHtml = '<span class="status-icon">&#10007;</span><span class="status-flag">No file uploaded</span>';
       }
     } else if (f.isCheckbox) {
       if (!document.getElementById(f.id).checked) {
-        li.className = "flagged";
-        li.textContent = f.label + ": not confirmed";
-      } else {
-        li.className = "clean";
-        li.textContent = f.label + ": OK";
+        isFlagged = true;
+        statusHtml = '<span class="status-icon">&#10007;</span><span class="status-flag">Not confirmed</span>';
       }
     } else {
       var val = document.getElementById(f.id).value;
       if (!val) {
-        li.className = "flagged";
-        li.textContent = f.label + ": empty, needs input";
-      } else {
-        li.className = "clean";
-        li.textContent = f.label + ": OK";
+        isFlagged = true;
+        statusHtml = '<span class="status-icon">&#10007;</span><span class="status-flag">Empty, needs input</span>';
       }
     }
-    listEl.appendChild(li);
+
+    if (!isFlagged) {
+      okCount++;
+      statusHtml = '<span class="status-icon">&#10003;</span><span class="status-ok">OK</span>';
+    } else {
+      flagCount++;
+    }
+
+    tr.innerHTML = '<td>' + f.label + '</td><td>' + statusHtml + '</td>';
+    reportBody.appendChild(tr);
   });
 
-  reportEl.style.display = "block";
+  if (flagCount === 0) {
+    reportBadge.className = "report-badge pass";
+    reportBadge.textContent = "All clear";
+    reportVerdict.innerHTML = '<span class="stat ok">Ready for review</span>';
+  } else {
+    reportBadge.className = "report-badge fail";
+    reportBadge.textContent = flagCount + " issue" + (flagCount > 1 ? "s" : "");
+    reportVerdict.innerHTML = '<span class="stat flagged">Needs applicant action</span>';
+  }
+
+  reportStats.innerHTML = '<span class="stat ok">' + okCount + ' OK</span> &middot; <span class="stat flagged">' + flagCount + ' flagged</span> &middot; ' + totalCount + ' total';
+
+  document.getElementById("officerReport").style.display = "block";
+  updateProgress();
 }
+
+updateProgress();
