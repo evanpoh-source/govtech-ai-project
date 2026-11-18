@@ -11,6 +11,7 @@
   .container { max-width: 640px; margin: 24px auto; background: #fff; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); padding: 32px; }
   h1 { font-size: 20px; margin-bottom: 4px; }
   .subtitle { font-size: 14px; color: #555; margin-bottom: 24px; }
+  .section-title { font-size: 15px; font-weight: 700; color: #333; margin: 24px 0 12px; padding-bottom: 6px; border-bottom: 1px solid #e5e5e5; }
   .field { margin-bottom: 20px; }
   label { display: block; font-weight: 600; font-size: 14px; margin-bottom: 4px; }
   label .hint { font-weight: 400; color: #666; font-size: 13px; }
@@ -21,6 +22,10 @@
   .warning.visible { display: block; }
   .valid-msg { display: none; margin-top: 4px; font-size: 13px; color: #16803c; }
   .valid-msg.visible { display: block; }
+  .info-box { background: #eff6ff; border-left: 3px solid #3366cc; padding: 10px 12px; font-size: 13px; color: #1e40af; margin-bottom: 20px; border-radius: 2px; }
+  .checkbox-field { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 20px; }
+  .checkbox-field input[type="checkbox"] { width: auto; margin-top: 3px; }
+  .checkbox-field label { font-weight: 400; font-size: 14px; }
   .actions { margin-top: 28px; display: flex; gap: 12px; }
   .btn { padding: 10px 20px; border: none; border-radius: 4px; font-size: 15px; cursor: pointer; }
   .btn-primary { background: #3366cc; color: #fff; }
@@ -32,6 +37,7 @@
   .officer-report li { margin-bottom: 4px; }
   .officer-report .clean { color: #16803c; font-weight: 600; }
   .officer-report .flagged { color: #b91c1c; }
+  .officer-note { font-size: 12px; color: #888; margin-top: 12px; font-style: italic; }
 </style>
 </head>
 <body>
@@ -40,47 +46,80 @@
 
 <div class="container">
   <h1>Passport Renewal — Child Application</h1>
-  <p class="subtitle">Parent or guardian submitting on behalf of a child under 16</p>
+  <p class="subtitle">Parent or guardian submitting on behalf of a child below 16. Passport valid for 5 years.</p>
+
+  <div class="info-box">
+    Based on ICA requirements: you need a passport-sized digital colour photo taken within the last 3 months (ICAO compliant), the child's birth certificate, and the applicant must be a parent or legal guardian.
+  </div>
 
   <form id="appForm" novalidate>
 
+    <div class="section-title">Child's particulars</div>
+
     <div class="field">
-      <label>Child's full name <span class="hint">(as on birth certificate)</span></label>
-      <input type="text" id="childName" placeholder="e.g. Tan Wei Lin">
+      <label>Child's full name <span class="hint">(as printed on birth certificate, in BLOCK LETTERS)</span></label>
+      <input type="text" id="childName" placeholder="e.g. TAN WEI LIN">
       <div class="warning" id="warn-childName"></div>
-      <div class="valid-msg" id="ok-childName">Looks good</div>
+      <div class="valid-msg" id="ok-childName">Matches expected format</div>
     </div>
 
     <div class="field">
       <label>Child's date of birth</label>
-      <input type="date" id="childDob" max="2026-11-18" min="2010-01-01">
+      <input type="date" id="childDob">
       <div class="warning" id="warn-childDob"></div>
-      <div class="valid-msg" id="ok-childDob">Looks good</div>
+      <div class="valid-msg" id="ok-childDob">Age is within range</div>
     </div>
 
     <div class="field">
-      <label>Photo file <span class="hint">(JPG, 400 x 514 px)</span></label>
+      <label>Child's NRIC / Birth certificate number <span class="hint">(e.g. T1234567A)</span></label>
+      <input type="text" id="childNric" placeholder="T1234567A" maxlength="9">
+      <div class="warning" id="warn-childNric"></div>
+      <div class="valid-msg" id="ok-childNric">Format is valid</div>
+    </div>
+
+    <div class="section-title">Passport photo</div>
+
+    <div class="field">
+      <label>Photo file <span class="hint">(JPG only, 400 x 514 px, taken within last 3 months, white background)</span></label>
       <input type="file" id="photoFile" accept=".jpg,.jpeg">
       <div class="warning" id="warn-photoFile"></div>
-      <div class="valid-msg" id="ok-photoFile">Looks good</div>
+      <div class="valid-msg" id="ok-photoFile">File format accepted</div>
     </div>
+
+    <div class="checkbox-field">
+      <input type="checkbox" id="photoRecent">
+      <label for="photoRecent">I confirm this photo was taken within the last 3 months</label>
+    </div>
+    <div class="warning" id="warn-photoRecent" style="margin-top:-12px;margin-bottom:16px;"></div>
+
+    <div class="section-title">Supporting documents</div>
 
     <div class="field">
       <label>Supporting document type</label>
       <select id="docType">
         <option value="">— Select —</option>
         <option value="birth_certificate">Birth certificate</option>
-        <option value="deed_poll">Deed poll (if name differs from birth certificate)</option>
+        <option value="deed_poll">Deed poll (if child's name differs from birth certificate)</option>
+        <option value="adoption_order">Court adoption order</option>
+        <option value="none">I don't have any of these</option>
       </select>
       <div class="warning" id="warn-docType"></div>
-      <div class="valid-msg" id="ok-docType">Looks good</div>
+      <div class="valid-msg" id="ok-docType">Document type accepted</div>
     </div>
 
+    <div class="field" id="deedPollReason" style="display:none;">
+      <label>Reason for deed poll <span class="hint">(why does the name differ?)</span></label>
+      <input type="text" id="deedPollText" placeholder="e.g. Name change after adoption">
+      <div class="warning" id="warn-deedPollText"></div>
+    </div>
+
+    <div class="section-title">Applicant (parent / guardian)</div>
+
     <div class="field">
-      <label>Parent's NRIC <span class="hint">(e.g. S8234567A)</span></label>
-      <input type="text" id="parentNric" placeholder="S1234567A" maxlength="9">
+      <label>Your NRIC <span class="hint">(e.g. S8234567A)</span></label>
+      <input type="text" id="parentNric" placeholder="S8234567A" maxlength="9">
       <div class="warning" id="warn-parentNric"></div>
-      <div class="valid-msg" id="ok-parentNric">Looks good</div>
+      <div class="valid-msg" id="ok-parentNric">Format is valid</div>
     </div>
 
     <div class="field">
@@ -90,10 +129,32 @@
         <option value="mother">Mother</option>
         <option value="father">Father</option>
         <option value="legal_guardian">Legal guardian</option>
+        <option value="sibling">Sibling</option>
+        <option value="grandparent">Grandparent</option>
+        <option value="other">Other</option>
       </select>
       <div class="warning" id="warn-relationship"></div>
-      <div class="valid-msg" id="ok-relationship">Looks good</div>
+      <div class="valid-msg" id="ok-relationship">Accepted</div>
     </div>
+
+    <div class="field" id="guardianProofField" style="display:none;">
+      <label>Legal guardianship proof <span class="hint">(court order or letter of guardianship)</span></label>
+      <select id="guardianProof">
+        <option value="">— Select —</option>
+        <option value="court_order">Court order</option>
+        <option value="letter">Letter of guardianship</option>
+        <option value="none">I don't have proof</option>
+      </select>
+      <div class="warning" id="warn-guardianProof"></div>
+    </div>
+
+    <div class="section-title">Declaration</div>
+
+    <div class="checkbox-field">
+      <input type="checkbox" id="declare">
+      <label for="declare">I declare that the information given is true and correct. I understand that giving false information is an offence.</label>
+    </div>
+    <div class="warning" id="warn-declare"></div>
 
     <div class="actions">
       <button type="button" class="btn btn-primary" onclick="submitForm()">Submit application</button>
@@ -105,6 +166,7 @@
     <h2>Officer summary report</h2>
     <p style="font-size:13px;color:#666;margin-bottom:8px;">Auto-generated for the reviewing officer. All data is synthetic.</p>
     <ul id="reportList"></ul>
+    <p class="officer-note">This report is a suggestion only. Final decisions stay with ICA officers.</p>
   </div>
 </div>
 
