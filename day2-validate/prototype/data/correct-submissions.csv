@@ -1,0 +1,22 @@
+## ALL DATA IN THIS FILE IS SYNTHETIC AND MADE UP. No real applicants or documents.
+child_name,child_dob,photo_format,photo_width_px,photo_height_px,document_type,parent_nric,relationship
+"Tan Wei Lin",2018-03-14,jpg,400,514,birth_certificate,S8234567A,mother
+"Lim Jun Hao",2016-07-22,jpg,400,514,birth_certificate,S7912345B,father
+"Ng Xin Yi",2019-11-03,jpg,400,514,birth_certificate,S8456789C,mother
+"Ong Zhi Xuan",2015-01-30,jpg,400,514,birth_certificate,S8101234D,father
+"Lee Jia Wen",2020-05-18,jpg,400,514,birth_certificate,S8345678E,mother
+"Wong Yu Xuan",2017-09-09,jpg,400,514,deed_poll,S7823456F,father
+"Chua Kai Ting",2014-12-25,jpg,400,514,birth_certificate,S8567890G,mother
+"Goh Rui En",2021-02-07,jpg,400,514,birth_certificate,S8012345H,father
+"Koh Jia Hui",2018-08-16,jpg,400,514,deed_poll,S8234567J,mother
+"Chen Wei Jie",2016-04-01,jpg,400,514,birth_certificate,S7945678K,father
+"Teo Xin Ying",2019-06-29,jpg,400,514,birth_certificate,S8178901L,mother
+"Sim Hao Yu",2015-10-12,jpg,400,514,birth_certificate,S8390123M,father
+"Yeo Jia Xin",2020-01-20,jpg,400,514,birth_certificate,S8501234N,mother
+"Ang Wei Ting",2017-03-08,jpg,400,514,deed_poll,S7812345P,father
+"Ho Zhi Yi",2014-07-14,jpg,400,514,birth_certificate,S8623456Q,mother
+"Tay Jun Wei",2021-09-05,jpg,400,514,birth_certificate,S8034567R,father
+"Lau Xin Hui",2018-11-22,jpg,400,514,birth_certificate,S8245678S,mother
+"Chong Kai Xuan",2016-02-17,jpg,400,514,birth_certificate,S7956789T,father
+"Pang Jia Ying",2019-08-30,jpg,400,514,birth_certificate,S8167890U,mother
+"Soh Rui Xuan",2015-05-04,jpg,400,514,birth_certificate,S8378901W,father
