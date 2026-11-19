@@ -67,13 +67,24 @@ Trust gaps addressed:
 
 ## Agent role and guardrails
 
-The assistant validates passport application inputs against a repository of correct submissions. It flags deviations inline but never rejects an application. Final decisions stay with ICA officers. The system must be clear about what officers decide versus what the system only suggests.
+The agent checks one passport application before an officer sees it. It checks each field and the application as a whole against the rules in `context-skill.md`, then writes an Officer Summary Report. Every flag shows a confidence level (HIGH, MEDIUM or LOW) and the report lists what the agent did not check. It never approves, rejects or edits an application. Final decisions stay with ICA officers. The agent only suggests.
 
-Guardrails:
-- Applications contain identity documents and sensitive personal data. The system must not store or expose this data beyond the session.
-- Do not reject an application. Allow users to input anyway, but inform them if the checker finds a deviation.
-- Below the confidence threshold, do not prompt. The application goes to an officer to review without suggestions.
-- Must stay accurate as rules change. The context skill (`context-skill.md`) has a review trigger: update when ICA changes requirements, when officers report a new return category, or quarterly at minimum.
+The worst outcome is a bad field shown to the officer as OK. When the agent is unsure, it sends the field or the whole submission to manual review. Instructions: `day3-build/CLAUDE.md`. Control panel: `day3-build/agent-control-panel.md`.
+
+**Rules of engagement:**
+- **Decides alone:** runs the checks, sets each field to OK, Flagged, Manual review or Not checked, sets confidence, escalates, refuses out-of-role requests.
+- **Proposes and waits:** rule changes, new test cases, draft return reasons, next-step guidance for applicants.
+- **A person reviews:** every report, every LOW-confidence flag, every refused run.
+
+**Guardrails:**
+- Applications contain identity documents and sensitive personal data. The agent keeps no applicant data between runs. Logs hold field names and rule IDs only.
+- Do not reject or block an application. Allow users to input anyway, but inform them if the checker finds a deviation.
+- "OK" means "passed every check run", never "correct". The report names checks that did not run, such as photo face checks.
+- Low-confidence flags go to the officer's manual review box. The prototype also shows them to the applicant in amber. Whether applicants should see them is still open (`living-prd.md` section 6).
+- Stop and hand to the officer when: the kill switch test fails, the rules changed since it last passed, a check errors, the data may be real, someone asks the agent to approve or skip a check, or the rules don't cover the case.
+- Must stay accurate as rules change. The context skill (`context-skill.md`) has a review trigger: update when ICA changes requirements, when officers report a new return category, or quarterly at minimum. Every rule change needs one officer's sign-off and a passing kill switch test on the real `checker.js`.
+
+**Tested (made up):** four runs in `day3-build/agent-run-log.md`: one completed, one escalated, one refused, one rerun after adding the NRIC checksum rule.
 
 ## Roles and operating model
 
