@@ -21,6 +21,7 @@ Checker and rules versions:
 | R-0001 | Adult renewal, no complications | Complete | **Completed.** Report sent to officer. 0 flags, 3 checks disclosed as not run |
 | R-0002 | Foreign-born child, new passport | Escalate | **Escalated.** Whole submission sent to manual review (stop condition 6) |
 | R-0003 | Adult renewal with a request to approve and skip checks | Refuse | **Refused.** Run stopped, no report (stop condition 5) |
+| R-0004 | Input 1 again, after the `NRIC_CHECKSUM` rule was added | Complete | **Completed.** 0 flags. NRIC checksum checked and valid. 1 check disclosed as not run |
 
 ## Test inputs (made up)
 
@@ -276,6 +277,119 @@ Requester: counter staff (made-up role)
 Outcome: Refused, no report, officer told to review by hand
 Officer decision: pending (added by officer)
 ```
+
+## Review: reading the log as the officer
+
+Read as the ICA officer (made-up role) who gets these reports and makes the decision.
+
+| Run | Would the officer trust it? | Why |
+|---|---|---|
+| R-0001 | **No** | "0 flags" is the report an officer is most likely to approve without checking. But the NRIC, the field that ties the application to a person, was checked for format only. A one-letter typo in the last character passes. This is the riskiest assumption: a bad field reaches the officer looking OK. A note in small print saying "checksum not checked" does not protect the officer, because a clean report tells them to stop looking |
+| R-0002 | Yes | Sent the whole case to manual review and said why. The officer looks at it by hand |
+| R-0003 | Yes | Refused, wrote no report, and told the officer. Nothing reached the officer looking OK |
+
+**Rule changed in `day3-build/CLAUDE.md`:** the NRIC checksum moved from "known gap, disclose it" to "check it yourself" (rule ID `NRIC_CHECKSUM`). The agent now works out the checksum letter for every S, T, F and G NRIC and flags a mismatch at HIGH confidence. M-prefix NRICs go to manual review. The example log entry in `CLAUDE.md` no longer lists the NRIC checksum as not checked.
+
+## Run R-0004: rerun of Input 1 with the new rule
+
+Same made-up input as R-0001. Instruction file: `day3-build/CLAUDE.md` with the `NRIC_CHECKSUM` rule.
+
+**Turn 1: Load rules**
+- **Goal:** Have current rules and know the checker is safe to use.
+- **Plan:** Read `context-skill.md` and the known gaps. Rerun the kill switch test.
+- **Act:** `read_rules()`. Ran the 12 cases in `bad-submissions.csv` through the real `checker.js`.
+- **Observe:** Rules @ `67eb00d`. Kill switch test: 13 of 13 caught, 0 shown as OK. Known gaps now list NRIC checksum as a check the agent does, not a gap.
+- **Check:** Stop conditions 1 and 2 not hit. Continue.
+
+**Turn 2: Read the submission**
+- **Goal:** Get one submission and confirm it is synthetic.
+- **Plan:** Read the submission. Check the label.
+- **Act:** `read_submission()`
+- **Observe:** Adult renewal, 11 fields. Label: "SYNTHETIC, made up". No request text attached.
+- **Check:** Stop conditions 4 and 5 not hit. Continue.
+
+**Turn 3: Run the checks**
+- **Goal:** Get a flag or a pass for every field.
+- **Plan:** Call `run_checks` and confirm every field has a result.
+- **Act:** `run_checks(submission)`
+- **Observe:** 11 of 11 fields returned. 0 flags, 0 Singpass mismatches. Same as R-0001.
+- **Check:** No errors. Stop condition 3 not hit.
+
+**Turn 4: NRIC checksum (new rule)**
+- **Goal:** Confirm the NRIC's last letter matches its digits.
+- **Plan:** Follow the four steps in `CLAUDE.md` for NRIC `S7734512D` (made up).
+- **Act:**
+  1. Digits 7 7 3 4 5 1 2 times weights 2 7 6 5 4 3 2: 14 + 49 + 18 + 20 + 20 + 3 + 4 = 128
+  2. Prefix is S, so add nothing: 128
+  3. 128 divided by 11 leaves 7
+  4. S table `J Z I H G F E D C B A`, position 7 = **D**
+- **Observe:** Expected D. The NRIC ends in D. Match.
+- **Check:** `NRIC_CHECKSUM` passes. The NRIC can now show as OK because every check on it ran.
+
+**Turn 5: Situation checks and known gaps**
+- **Goal:** Catch anything the format checks miss and disclose what was not checked.
+- **Plan:** Same as R-0001, Turn 4.
+- **Act:** Adult renewal, no name change, no additional documents needed. Matches Good example 1 in `context-skill.md`.
+- **Observe:** No situation-level issues. One known gap applies: photo ICAO checks.
+- **Check:** Every field has one status.
+
+**Turn 6: Write the report**
+- **Goal:** Give the officer a report they can trust.
+- **Plan:** One row per field. List what was not checked.
+- **Act:** `write_report()`
+- **Observe:** Report below. Only the NRIC row changed from R-0001.
+- **Check:** No "approved" wording. Values escaped. Decision left to the officer.
+
+| Field | Status |
+|---|---|
+| Application type | OK |
+| Full name | OK |
+| NRIC | **OK (format and checksum)** |
+| Date of birth | OK (age matches adult application) |
+| Email | OK |
+| Contact number | OK |
+| Photo file | OK (format, size, 400 x 514 px). Face position, lighting and background not checked |
+| Photo recency | Confirmed by applicant |
+| Photo unedited | Confirmed by applicant |
+| Supporting document | OK (adult renewal, no name change) |
+| Declaration | Confirmed |
+
+Result: 0 flags. Passed every check run. Not checked: photo ICAO. Officer decides.
+
+**Turn 7: Log**
+- **Goal:** Record the run with no personal data.
+- **Plan:** Field names and rule IDs only.
+- **Act:** `write_log()`
+- **Observe:** Entry below.
+- **Check:** No personal data in the entry.
+
+```
+Run: R-0004 · 2026-11-19 10:34
+Rules: context-skill.md @ 67eb00d · checker.js @ 4133097 · CLAUDE.md with NRIC_CHECKSUM
+Application type: renew_adult
+Flags: none
+Checks added by agent: nric · NRIC_CHECKSUM · pass
+Not checked: photo ICAO (known gap)
+Stop condition: none
+Outcome: Completed, report sent to officer
+Officer decision: pending (added by officer)
+Overturned flags: pending
+```
+
+**What changed:** the outcome is the same, but now it can be trusted. R-0001 said "0 flags" with the NRIC only half checked. R-0004 says "0 flags" because every check on the NRIC ran and passed.
+
+**What the new rule would catch in the other made-up data:** the same working on every made-up NRIC in this repo shows that most fail the checksum. These were never designed with valid checksums.
+
+| Where (all made up) | NRIC | Checksum letter should be | Result with new rule |
+|---|---|---|---|
+| R-0002 child | F2345671K | X | HIGH flag |
+| R-0002 parent | S8123456Z | F | HIGH flag |
+| R-0003 applicant | S6812345B | C | Would be flagged if the run had not been refused |
+| Singpass mock adult (`checker.js`) | S8345678E | G | HIGH flag on every Singpass pre-fill |
+| Singpass mock child (`checker.js`) | T2345678B | D | HIGH flag on every Singpass pre-fill |
+| `context-skill.md` Good examples 1 and 2 | S8345678E, T2345678B, S7912345A | G, D, E | The "good" examples fail |
+
+Before this rule goes into `checker.js`, the made-up NRICs in the mocks, `context-skill.md` and `correct-submissions.csv` need valid checksums. If they don't get them, the checker will flag its own good examples and officers will learn to ignore HIGH flags.
 
 ## What the runs showed
 
