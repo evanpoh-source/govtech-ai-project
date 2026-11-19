@@ -96,7 +96,7 @@ The agent stops, writes no "All clear" report, logs the reason and tells the off
 | 5 | Out-of-role request: approve, reject, edit, contact, skip a check | Refused. Officer reviews by hand or asks for a clean resubmission (R-0003) |
 | 6 | Situation the rules don't cover | Whole submission to manual review (R-0002) |
 
-**Panel-level stop:** the product team pauses the agent if officers overturn HIGH flags on the same rule more than twice in a week, or if an officer finds any bad field the report showed as OK.
+**Panel-level stop:** the sign-off officer pauses the agent if officers overturn HIGH flags on the same rule more than twice in a week, or if an officer finds any bad field the report showed as OK.
 
 **Gap to close in `CLAUDE.md`:** stop condition 5 does not say what happens after a refusal. The "What happens next" column above is the proposed wording.
 
@@ -109,7 +109,7 @@ The agent stops, writes no "All clear" report, logs the reason and tells the off
 - **Judgement calls.** Foreign-born children, name changes, guardianship proof and any case the rules don't cover.
 - **Photo face checks.** Face position, lighting and background, until an image check is tested.
 - **Real data.** Moving from made-up to real data needs Gates 1 to 3 in `one-pager.md`, passed and signed off by a person.
-- **Pausing the agent.** Any officer can ask the product team to pause it.
+- **Pausing the agent.** The sign-off officer decides incidents: pause, fix and restart. Any officer can ask them to pause it (`operating-model.md`).
 
 ## Business owner questions
 
