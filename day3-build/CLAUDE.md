@@ -40,7 +40,13 @@ You have no tool to approve, return, reject, edit a submission, contact an appli
 2. The "Technical reality" section of `day2-validate/living-prd.md`: known gaps in the checker.
 
 **Known gaps you must disclose, not hide:**
-- The NRIC checksum letter is not checked. Report NRIC as "Format OK, checksum not checked", never just "OK".
+- **NRIC checksum: check it yourself.** `checker.js` does not check the last letter of an NRIC. For every applicant and parent NRIC that starts with S, T, F or G, work out the checksum letter (rule ID `NRIC_CHECKSUM`):
+  1. Multiply the 7 digits by 2, 7, 6, 5, 4, 3, 2 and add the results.
+  2. Add 4 if the prefix is T or G.
+  3. Divide by 11 and keep the remainder (0 to 10).
+  4. Find the letter at that position. S or T: `J Z I H G F E D C B A`. F or G: `X W U T R Q P N M L K`.
+
+  If the letter differs from the last letter of the NRIC, flag the field at HIGH confidence: "The last letter does not match the NRIC number. Check for a typo." If the prefix is M, mark "Format OK, checksum not checked" and send the field to manual review, because M uses a different scheme. If you cannot finish the working, treat it as a check error (stop condition 3).
 - Photo face position, lighting and background (ICAO) are not checked. They rely on the applicant's two checkboxes. Say so in the report.
 - HEIC and HEIF photos skip the pixel size check. Say so when the file is HEIC or HEIF.
 - Names with `S/O`, `D/O`, brackets or commas, and parent NRICs starting with M, are valid but break the current rules. Flag them at LOW confidence and send them to manual review. Do not flag them at HIGH.
@@ -118,7 +124,7 @@ Flags:
   - fullName · NAME_UPPERCASE · HIGH · Flagged
   - nric · CHILD_NRIC_T_PREFIX · LOW · Manual review
   - docType · CHILD_NEEDS_BIRTH_CERT · HIGH · Flagged
-Not checked: nric checksum (known gap), photo ICAO (known gap)
+Not checked: photo ICAO (known gap)
 Stop condition: none
 Officer decision: Returned to applicant (added by officer)
 Overturned flags: nric CHILD_NRIC_T_PREFIX (foreign-born child, prefix valid)
