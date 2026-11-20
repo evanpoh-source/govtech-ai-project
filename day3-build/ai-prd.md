@@ -55,7 +55,8 @@ The agent has no tool to approve, return, reject, edit a field, contact anyone, 
 **Known gaps the report must disclose:**
 - Photo face position, lighting and background (ICAO) are not checked. They rely on two applicant checkboxes.
 - HEIC and HEIF photos skip the pixel size check.
-- Names with `S/O`, `D/O`, brackets or commas, and parent NRICs starting with M, break the current rules but are valid. They go to manual review at LOW, not HIGH.
+- Names with `S/O`, `D/O`, brackets or commas are valid. `checker.js` accepts them since 20 Nov (open decision 8).
+- Parent NRICs starting with M break the current rules but are valid. They go to manual review at LOW, not HIGH.
 - M-prefix NRICs skip the checksum and go to manual review.
 
 **Within a run:** the submission, the rules and results stay in working context only.
@@ -269,6 +270,8 @@ For the product owner. Each lists the options found in the files. None are decid
 
 8. **Names with `S/O`, `D/O`, brackets or commas, and M-prefix parent NRICs.**
    - Options: change the rules to accept them; keep them at LOW and manual review.
+   - Names: decided on 20 Nov. The rules now accept them (eval case P1). Rule sign-off by the sign-off officer still needed.
+   - M-prefix parent NRICs: still open.
 
 9. **Landline numbers in the contact field.**
    - Options: accept 6xxx numbers; relabel the field; reject landlines with a clear message.

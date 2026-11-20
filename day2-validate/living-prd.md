@@ -119,7 +119,7 @@ From the One Pager, with what the prototype can measure today:
 | Officer review time per application | Not measured | Decrease | No. Needs officer testing with a timer |
 
 Metrics to add because the code now has the features:
-- **Correct inputs flagged** (false alarms). The One Pager tracks missed errors but not false alarms. The code raises HIGH-confidence warnings on some valid names (section 5). A false alarm at HIGH confidence teaches applicants to ignore warnings.
+- **Correct inputs flagged** (false alarms). The One Pager tracks missed errors but not false alarms. The code raises HIGH-confidence warnings on valid M-prefix parent NRICs, and did on some valid names until 20 Nov (section 5). A false alarm at HIGH confidence teaches applicants to ignore warnings.
 - **Share of flags at LOW confidence that officers overturn.** This tells us if the LOW path is set at the right level.
 - **Singpass retrieval rate.** Locked fields remove typing errors, so higher retrieval should mean fewer returns on name, NRIC and DOB.
 
@@ -136,7 +136,7 @@ What the code is, as opposed to what the docs say.
 **The kill switch test does not test the shipped code.** `test-false-positives.html` has its own copy of `RULES` and its own `validate()` function. If someone changes `checker.js`, the test still passes. It also marks guardianship proof as missing whenever "legal guardian" is chosen, without looking at the proof value. Photo and declaration are not tested.
 
 **Valid inputs that get HIGH-confidence warnings** (made-up examples, tested against `checker.js`):
-- Names with `S/O`, `D/O`, brackets or commas, for example `RAJ S/O KUMAR`. The name regex allows only letters, spaces, `'`, `@` and `-`.
+- Names with `S/O`, `D/O`, brackets or commas, for example `RAJ S/O KUMAR`. The name regex allowed only letters, spaces, `'`, `@` and `-`. **Fixed on 20 Nov:** the regex in `checker.js` and `test-false-positives.html` now also allows `/`, `(`, `)` and `,`. Kill switch: 13 of 13 caught.
 - Parent NRIC starting with M. The applicant NRIC rule allows M (`nricFormat`), the parent rule does not (`adultNricPrefix`).
 
 **Singpass is a mock with two fixed profiles** (`checker.js:27-30`). Locked fields mean the mismatch check (`checker.js:65-81`) cannot fire after a Singpass retrieval. It only matters if code later unlocks the fields.
@@ -155,7 +155,7 @@ What the code is, as opposed to what the docs say.
 |---|---|---|---|
 | The checker never shows a bad input as OK | Value (riskiest) | 13/13 on the 12-case set; fails on NRIC checksum | Any known-bad field shown as OK in an expanded test set |
 | Applicants act on warnings that don't block them | Value | None. No user testing yet | Return rate stays near 17% after launch |
-| HIGH-confidence warnings are right | Value | Wrong on S/O names and M-prefix parents | Officers or applicants overturn HIGH flags |
+| HIGH-confidence warnings are right | Value | Wrong on M-prefix parents. Wrong on S/O names until the 20 Nov fix | Officers or applicants overturn HIGH flags |
 | Officers read the LOW-confidence box and don't skip it | Usability | None | Officers approve LOW-flagged cases without checking |
 | The officer report saves time and doesn't add a step | Value | None | Review time per application goes up |
 | Hardcoded rules stay accurate as ICA rules change | Feasibility | `context-skill.md` has review triggers; code has no link to it | A policy change ships and the checker still uses old rules |
@@ -195,7 +195,7 @@ What the code is, as opposed to what the docs say.
 **Before officer testing (must do):**
 1. **Point the kill switch test at the real checker.** Move the rules into a pure `validate(submission)` function in `checker.js` that takes data and returns flags. Have the form and `test-false-positives.html` both call it. Today the test can pass while the shipped code is broken.
 2. **Add the NRIC checksum check.** This closes the one known-bad input that reaches the officer as OK. Add the checksum case and a landline-in-mobile case to `bad-submissions.csv`.
-3. **Stop false alarms on valid names and parent NRICs.** Allow `/`, `(`, `)` and `,` in names. Allow the M prefix for parents, matching the applicant rule.
+3. **Stop false alarms on valid names and parent NRICs.** Allow `/`, `(`, `)` and `,` in names. Allow the M prefix for parents, matching the applicant rule. *Status 20 Nov: names done, M prefix not done.*
 4. **Escape user input before it goes into `innerHTML`** in the officer queue and report.
 
 **Before Gate 2 (should do):**

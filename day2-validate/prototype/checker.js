@@ -6,7 +6,7 @@
 */
 
 var RULES = {
-  nameFormat: /^[A-Z][A-Z\s'@\-]{1,60}$/,
+  nameFormat: /^[A-Z][A-Z\s'@\-\/(),]{1,60}$/,
   nameHasLowerCase: /[a-z]/,
   nricFormat: /^[STFGM]\d{7}[A-Z]$/i,
   childNricPrefix: /^[T]\d{7}[A-Z]$/i,
