@@ -33,7 +33,7 @@ This file says who decides what about the agent once it is built. The agent deci
 
 **How the rows work in practice:**
 - **Scope:** a scope change that needs more money goes to the business owner as a funding decision.
-- **Permissions:** the agent stops itself on stop conditions 1 to 6 without waiting for anyone. This row covers what a person changes afterwards.
+- **Permissions:** the agent stops itself on stop conditions 1 to 7 without waiting for anyone. This row covers what a person changes afterwards.
 - **Vendor and model:** the engineering lead advises on fit and cost. Security must approve the endpoint before the product owner can choose it.
 - **Incident:** any vetting officer can ask the sign-off officer to pause the agent. The sign-off officer decides whether to pause, what fix is needed, and when to restart.
 - **Applications:** none of this changes who decides an application. A vetting officer decides every one.

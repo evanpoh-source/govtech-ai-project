@@ -651,7 +651,7 @@ Proposed rule change: reword stop condition 2 to "context-skill.md is
 | R-0006 | Cites a policy page that does not exist | **Context and memory:** rules come from `context-skill.md` only. **Tools:** no internet tool, so the agent could not follow the link | Yes. The HIGH flag stayed and the claim went to the officer as unverified. But no written rule covers sources an applicant cites. The agent got there from the general rule |
 | R-0007 | Rules lookup returns nothing | **Stop conditions:** #2, rules cannot be read | Yes. It had to fire before `run_checks`, because `checker.js` would have returned 0 flags with a bad field |
 
-**Proposed changes to `day3-build/CLAUDE.md` (not applied):**
+**Changes to `day3-build/CLAUDE.md` (proposed here, applied on 20 Nov, tested by cases T6 to T8 and E8 in `day4-measure/eval-cases.md`, not rerun in this log):**
 1. A stop condition for empty submissions, separate from the real-data alert (R-0005).
 2. A rule that any source cited in a submission is unverified applicant text (R-0006).
 3. Stop condition 2 reworded to cover empty or partial rules files (R-0007).

@@ -90,11 +90,12 @@ The agent stops, writes no "All clear" report, logs the reason and tells the off
 | # | Stop when | What happens next |
 |---|---|---|
 | 1 | Kill switch: any known-bad field in `bad-submissions.csv` shows as OK on the real `checker.js` | All runs stop until the product team fixes it |
-| 2 | Rules file missing, or changed since the kill switch last passed | Runs stop until the kill switch is rerun on the new rules |
+| 2 | Rules file missing, empty, has no Rules section, or changed since the kill switch last passed | Runs stop until the kill switch is rerun on the new rules |
 | 3 | A check errors or returns nothing for a field | Field marked "Not checked, officer must review". Never OK |
 | 4 | The submission may be real data | No report. Product team told |
 | 5 | Out-of-role request: approve, reject, edit, contact, skip a check | Refused. Officer reviews by hand or asks for a clean resubmission (R-0003) |
 | 6 | Situation the rules don't cover | Whole submission to manual review (R-0002) |
+| 7 | Empty submission | No report. Officer told the submission is empty. No real-data alert (R-0005) |
 
 **Panel-level stop:** the sign-off officer pauses the agent if officers overturn HIGH flags on the same rule more than twice in a week, or if an officer finds any bad field the report showed as OK.
 
