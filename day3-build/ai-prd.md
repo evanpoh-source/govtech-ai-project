@@ -165,11 +165,12 @@ The agent stops, writes no "All clear" report, logs the reason and tells the off
 | # | Stop when | What happens next |
 |---|---|---|
 | 1 | Any known-bad field in `bad-submissions.csv` shows as OK on the real `checker.js` | All runs stop until the product team fixes it |
-| 2 | `context-skill.md` is missing or changed since the kill switch last passed | Runs stop until the kill switch is rerun |
+| 2 | `context-skill.md` is missing, empty, has no Rules section, or changed since the kill switch last passed | Runs stop until the kill switch is rerun |
 | 3 | A check errors or returns nothing for a field | Field marked "Not checked, officer must review" |
 | 4 | The submission may be real data | No report. Product team told |
 | 5 | Someone asks it to approve, reject, edit, contact or skip a check | Refused. Officer told (next step wording is open decision 4) |
 | 6 | The rules don't cover the case | Whole submission to manual review |
+| 7 | The submission is empty | No report. Officer told. No real-data alert |
 
 **Pause for the whole agent (from the control panel):** the sign-off officer pauses the agent if officers overturn HIGH flags on one rule more than twice in a week, or an officer finds a bad field the report showed as OK.
 
